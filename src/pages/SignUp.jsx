@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Typography, IconButton, InputAdornment, Link, FormHelperText, Grid } from '@mui/material';
 import { Visibility, VisibilityOff, PersonAdd } from '@mui/icons-material';
-import { Container, Form, StyledTextField, StyledSignButton, Background } from '../styles';
+import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
 
 const SignUp = () => {
@@ -75,7 +75,6 @@ const SignUp = () => {
 
     return (
         <Container>
-            <Background image_url={"https://xmple.com/wallpaper/gradient-purple-black-linear-3840x2160-c2-9400d3-000000-a-270-f-14.svg"} />
             <PersonAdd color='primary' align='center' sx={{ fontSize: 50, mb: 2 }} />
             <Form noValidate onSubmit={onSubmit}>
                 <Typography variant="h5" align='center' component="h1" gutterBottom>

@@ -128,12 +128,12 @@ const GuestSearch = () => {
                                         InputProps={{
                                             ...params.InputProps,
                                             sx: {
-                                                color: '#000080', // Navy Blue color for the text input
+                                                // color: '#000080', // Navy Blue color for the text input
                                                 fontSize: 24,
                                             },
                                         }} InputLabelProps={{
                                             sx: {
-                                                color: '#000080', // Navy Blue color for the label text
+                                                // color: '#000080', // Navy Blue color for the label text
                                                 fontWeight: 'bold',
                                             },
                                         }} />}

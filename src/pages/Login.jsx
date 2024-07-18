@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Typography, IconButton, InputAdornment, Link, FormHelperText } from '@mui/material';
 import { Visibility, VisibilityOff, LockOpen } from '@mui/icons-material';
-import { Container, Form, StyledTextField, StyledSignButton, Background } from '../styles';
+import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
-
+import baseURL from '../apiConfig';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -51,7 +51,7 @@ const Login = () => {
         const data = { email, password };
         console.log(data);
         try {
-            const response = await axios.post('http://localhost:3001/api/users/login', data);
+            const response = await axios.post(`${baseURL}/api/users/login`, data);
             console.log(response.data); // Handle successful response
         } catch (error) {
             console.error('Login error:', error.response?.data || error.message);
@@ -60,8 +60,7 @@ const Login = () => {
 
     return (
         <Container>
-            <Background image_url={"https://xmple.com/wallpaper/gradient-purple-black-linear-3840x2160-c2-9400d3-000000-a-270-f-14.svg"} />
-            <LockOpen color="primary" sx={{ fontSize: 50, mb: 2 }} />
+            <LockOpen color='primary' sx={{ fontSize: 50, mb: 2 }} />
             <Form noValidate onSubmit={onSubmit}>
                 <Typography variant="h5" align='center' component="h1" gutterBottom>
                     Login

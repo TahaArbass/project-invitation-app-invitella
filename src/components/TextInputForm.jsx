@@ -15,6 +15,13 @@ import {
 } from '@mui/material';
 import { debounce } from 'lodash';
 
+const fonts = [
+    'Arial', 'Gerogia', 'Times New Roman',
+    'Courier New', 'Verdana', 'Merriweather',
+    'Roboto', 'Playfair Display', 'Pacifico',
+    'Alegreya', 'Great Vibes'
+];
+
 const TextInputForm = ({ onGenerateJSON }) => {
     const [text, setText] = useState('');
     const [textColor, setTextColor] = useState('#000000');
@@ -104,11 +111,11 @@ const TextInputForm = ({ onGenerateJSON }) => {
                             onChange={(e) => setFont(e.target.value)}
                             label="Font"
                         >
-                            <MenuItem value="Arial" style={{ fontFamily: 'Arial' }}>Arial</MenuItem>
-                            <MenuItem value="Courier New" style={{ fontFamily: 'Courier New' }}>Courier New</MenuItem>
-                            <MenuItem value="Georgia" style={{ fontFamily: 'Georgia' }}>Georgia</MenuItem>
-                            <MenuItem value="Times New Roman" style={{ fontFamily: 'Times New Roman' }}>Times New Roman</MenuItem>
-                            <MenuItem value="Verdana" style={{ fontFamily: 'Verdana' }}>Verdana</MenuItem>
+                            {fonts.map((font) => (
+                                <MenuItem key={font} value={font} sx={{ fontFamily: `${font}` }}>
+                                    {font}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Grid>

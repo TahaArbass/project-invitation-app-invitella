@@ -1,25 +1,32 @@
-import React from 'react';
-import { Card, CardContent, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Card, CardContent, Typography, IconButton, Box } from '@mui/material';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCoverflow, Pagination, Navigation } from 'swiper/modules';
+import { EffectCoverflow } from 'swiper/modules';
 import 'swiper/css';
-import bgImage from '../assets/paint2.jpeg'
+import bgImage from '../assets/paint2.jpeg';
 import { Background, Container } from '../styles';
+import EastIcon from '@mui/icons-material/East';
+import WestIcon from '@mui/icons-material/West';
 
 const cards = [
-    { id: 1, title: 'Card 1', content: 'Content for Card 1. This is additional content for Card 1 to make it longer and more informative. You can add more details here about the card.' },
-    { id: 2, title: 'Card 2', content: 'Content for Card 2. This is additional content for Card 2 to make it longer and more informative. You can add more details here about the card.' },
-    { id: 3, title: 'Card 3', content: 'Content for Card 3. This is additional content for Card 3 to make it longer and more informative. You can add more details here about the card.' },
+    { id: 1, title: 'Card 1', content: 'Content for Card 1...' },
+    { id: 2, title: 'Card 2', content: 'Content for Card 2...' },
+    { id: 3, title: 'Card 3', content: 'Content for Card 3...' },
 ];
 
 const InvitationPage = () => {
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    const handleSlideChange = (swiper) => {
+        setCurrentSlide(swiper.activeIndex);
+    };
+
     return (
         <Background image_url={bgImage}>
             <Container>
                 <Swiper
                     effect="coverflow"
-                    centeredSlides={true}
-                    loop={false}
+                    centeredSlides
                     slidesPerView={1}
                     spaceBetween={200}
                     coverflowEffect={{
@@ -28,22 +35,42 @@ const InvitationPage = () => {
                         depth: 100,
                         modifier: 2.5,
                     }}
-                    pagination={{ clickable: true }}
-                    navigation
-                    modules={[EffectCoverflow, Pagination, Navigation]}
+                    modules={[EffectCoverflow]}
+                    onSlideChange={handleSlideChange}
                     style={{
-                        width: '90%', height: '100%', padding: 4, margin: 0,
-                        display: 'flex', justifyContent: 'center', alignItems: 'center',
+                        width: '85%',
+                        height: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        position: 'relative',
                     }}
                 >
                     {cards.map((card) => (
                         <SwiperSlide key={card.id} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <Card style={{ textAlign: 'center', width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(1px)' }}>
-                                <CardContent>
+                            <Card sx={{
+                                width: '100%',
+                                height: '80vh',
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                backdropFilter: 'blur(1px)',
+                                borderRadius: '20px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.15)',
+                            }}>
+                                <CardContent sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'flex-start',
+                                    overflowY: 'auto',
+                                    overflowX: 'hidden',
+                                }}>
                                     <Typography variant="h5" component="h2" gutterBottom>
                                         {card.title}
                                     </Typography>
-                                    <Typography variant="body1" component="div">
+                                    <Typography variant="body1">
                                         {card.content}
                                     </Typography>
                                 </CardContent>
@@ -51,7 +78,46 @@ const InvitationPage = () => {
                         </SwiperSlide>
                     ))}
                 </Swiper>
-            </Container >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10,
+                        background: 'rgba(0,0,0,0.4)',
+                        borderRadius: '20px',
+                        padding: '5px 10px',
+                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                        pointerEvents: 'none',
+                    }}
+                >
+                    {currentSlide > 0 && (
+                        <IconButton
+                            sx={{
+                                background: 'transparent',
+                                color: '#fff',
+                            }}
+                        >
+                            <WestIcon />
+                        </IconButton>
+                    )}
+                    <Typography variant="body1" sx={{ color: '#fff', margin: '0 10px' }}>
+                        Swipe
+                    </Typography>
+                    {currentSlide < cards.length - 1 && (
+                        <IconButton
+                            sx={{
+                                background: 'transparent',
+                                color: '#fff',
+                            }}
+                        >
+                            <EastIcon />
+                        </IconButton>
+                    )}
+                </Box>
+            </Container>
         </Background>
     );
 };

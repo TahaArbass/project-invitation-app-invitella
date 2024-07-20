@@ -13,12 +13,20 @@ import {
 } from '@mui/material';
 import { debounce } from 'lodash';
 
+const fonts = [
+    'Arial', 'Gerogia', 'Times New Roman',
+    'Courier New', 'Verdana', 'Merriweather',
+    'Roboto', 'Playfair Display', 'Pacifico',
+    'Alegreya', 'Great Vibes'
+];
+
 const LinkButtonInputForm = ({ onGenerateJSON }) => {
     const [buttonText, setButtonText] = useState('');
     const [textColor, setTextColor] = useState('#000000');
     const [buttonColor, setButtonColor] = useState('#ffffff');
     const [buttonSize, setButtonSize] = useState('medium');
     const [buttonLink, setButtonLink] = useState('');
+    const [fontFamily, setFontFamily] = useState('Arial');
 
     const debouncedSetTextColor = useRef(debounce((color) => setTextColor(color), 300)).current;
     const debouncedSetButtonColor = useRef(debounce((color) => setButtonColor(color), 300)).current;
@@ -44,7 +52,8 @@ const LinkButtonInputForm = ({ onGenerateJSON }) => {
             textColor,
             buttonColor,
             buttonSize,
-            buttonLink
+            buttonLink,
+            fontFamily
         };
         onGenerateJSON(jsonObject);
     };
@@ -100,6 +109,22 @@ const LinkButtonInputForm = ({ onGenerateJSON }) => {
                             <MenuItem value="small">Small</MenuItem>
                             <MenuItem value="medium">Medium</MenuItem>
                             <MenuItem value="large">Large</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <FormControl fullWidth variant="outlined">
+                        <InputLabel>Font Family</InputLabel>
+                        <Select
+                            value={fontFamily}
+                            onChange={(e) => setFontFamily(e.target.value)}
+                            label="Font Family"
+                        >
+                            {fonts.map((font) => (
+                                <MenuItem key={font} value={font} sx={{ fontFamily: `${font}` }}>
+                                    {font}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Grid>

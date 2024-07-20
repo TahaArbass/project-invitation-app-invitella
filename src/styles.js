@@ -12,7 +12,6 @@ export const Background = styled(Box)(({ theme, image_url }) => ({
     backgroundImage: `url(${image_url})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    // background: 'linear-gradient(to right, #001f3f, #001f3f, #d8b384)',
     zIndex: -1,
 }));
 

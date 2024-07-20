@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Button, Typography, Box, Paper, Grid } from '@mui/material';
+import { Button, Typography, Box, Paper, Grid, Card, CardContent, Input } from '@mui/material';
 import TextInputForm from './TextInputForm';
-import ButtonInputForm from './ButtonInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
 import IconInputForm from './IconInputForm';
-import * as Icons from '@mui/icons-material';
+import { Home, LocationOn, Event, NotInterested, TextFields, Link, InsertEmoticon, AddPhotoAlternate } from '@mui/icons-material';
+
+const Icons = {
+    Home, LocationOn, Event, NotInterested
+};
 
 const InvitationCreator = () => {
     const [elements, setElements] = useState([]);
@@ -12,11 +15,6 @@ const InvitationCreator = () => {
 
     const handleAddText = (jsonObject) => {
         setElements([...elements, { type: 'text', ...jsonObject }]);
-        setFormType(null);
-    };
-
-    const handleAddButton = (jsonObject) => {
-        setElements([...elements, { type: 'button', ...jsonObject }]);
         setFormType(null);
     };
 
@@ -30,12 +28,28 @@ const InvitationCreator = () => {
         setFormType(null);
     };
 
+    const handleAddBackground = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const backgroundIndex = elements.findIndex(el => el.type === 'background');
+                if (backgroundIndex !== -1) {
+                    const updatedElements = [...elements];
+                    updatedElements[backgroundIndex].url = reader.result;
+                    setElements(updatedElements);
+                } else {
+                    setElements([...elements, { type: 'background', url: reader.result }]);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const renderForm = () => {
         switch (formType) {
             case 'text':
                 return <TextInputForm onGenerateJSON={handleAddText} />;
-            case 'button':
-                return <ButtonInputForm onGenerateJSON={handleAddButton} />;
             case 'linkButton':
                 return <LinkButtonInputForm onGenerateJSON={handleAddLinkButton} />;
             case 'icon':
@@ -48,93 +62,135 @@ const InvitationCreator = () => {
     return (
         <Box sx={{ p: 3 }}>
             <Typography variant="h4" gutterBottom>Create Your Invitation</Typography>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary" onClick={() => setFormType('text')}>
+            <Grid container spacing={2} justifyContent="center">
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<TextFields />}
+                        onClick={() => setFormType('text')}
+                    >
                         Add Text
                     </Button>
                 </Grid>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary" onClick={() => setFormType('button')}>
-                        Add Button
-                    </Button>
-                </Grid>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary" onClick={() => setFormType('linkButton')}>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Link />}
+                        onClick={() => setFormType('linkButton')}
+                    >
                         Add Link Button
                     </Button>
                 </Grid>
-                <Grid item xs={12}>
-                    <Button variant="contained" color="primary" onClick={() => setFormType('icon')}>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<InsertEmoticon />}
+                        onClick={() => setFormType('icon')}
+                    >
                         Add Icon
                     </Button>
                 </Grid>
-                <Grid item xs={12}>
-                    {renderForm()}
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddPhotoAlternate />}
+                        onClick={() => document.getElementById('bg-input').click()}
+                    >
+                        Add Background
+                    </Button>
+                    <Input
+                        id="bg-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAddBackground}
+                        sx={{ display: 'none' }}
+                    />
                 </Grid>
             </Grid>
-            <Paper sx={{ p: 2, mt: 3 }}>
+            <Box sx={{ mt: 4 }}>
+                {renderForm()}
+            </Box>
+            <Paper sx={{ p: 2, mt: 4 }}>
                 <Typography variant="h6">Preview</Typography>
-                {elements.map((element, index) => (
-                    <Box key={index} sx={{ mt: 2 }}>
-                        {element.type === 'text' && (
-                            <Typography
-                                variant="body1"
+                <Grid container spacing={2} justifyContent="center">
+                    <Grid item>
+                        <Card
+                            sx={{
+                                width: '375px', // typical mobile width
+                                height: '667px', // typical mobile height
+                                p: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundImage: elements.find(el => el.type === 'background') ? `url(${elements.find(el => el.type === 'background').url})` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                            }}
+                        >
+                            <CardContent
                                 sx={{
-                                    color: element.textColor,
-                                    fontFamily: element.font,
-                                    fontWeight: element.bold ? 'bold' : 'normal',
-                                    fontStyle: element.italic ? 'italic' : 'normal',
-                                    fontSize: `${element.fontSize}px`,
-                                    textAlign: element.alignment,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '100%',
                                 }}
                             >
-                                {element.text}
-                            </Typography>
-                        )}
-                        {element.type === 'button' && (
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    color: element.textColor,
-                                    backgroundColor: element.buttonColor,
-                                    fontSize: element.buttonSize,
-                                    '&:hover': {
-                                        backgroundColor: `${element.buttonColor}CC`,
-                                    },
-                                }}
-                            >
-                                {element.buttonText}
-                            </Button>
-                        )}
-                        {element.type === 'linkButton' && (
-                            <Button
-                                variant="contained"
-                                href={element.buttonLink}
-                                target="_blank"
-                                sx={{
-                                    color: element.textColor,
-                                    backgroundColor: element.buttonColor,
-                                    fontSize: element.buttonSize,
-                                    '&:hover': {
-                                        backgroundColor: `${element.buttonColor}CC`,
-                                    },
-                                }}
-                            >
-                                {element.buttonText}
-                            </Button>
-                        )}
-                        {element.type === 'icon' && (
-                            <Box
-                                component={Icons[element.iconType]}
-                                sx={{
-                                    color: element.iconColor,
-                                    fontSize: `${element.iconSize}px`,
-                                }}
-                            />
-                        )}
-                    </Box>
-                ))}
+                                {elements.filter(el => el.type !== 'background').map((element, index) => (
+                                    <Box key={index} sx={{ mb: 2 }}>
+                                        {element.type === 'text' && (
+                                            <Typography
+                                                variant="body1"
+                                                sx={{
+                                                    color: element.textColor,
+                                                    fontFamily: element.font,
+                                                    fontWeight: element.bold ? 'bold' : 'normal',
+                                                    fontStyle: element.italic ? 'italic' : 'normal',
+                                                    fontSize: `${element.fontSize}px`,
+                                                    textAlign: element.alignment,
+                                                }}
+                                            >
+                                                {element.text}
+                                            </Typography>
+                                        )}
+                                        {element.type === 'linkButton' && (
+                                            <Button
+                                                variant="contained"
+                                                href={element.buttonLink}
+                                                target="_blank"
+                                                sx={{
+                                                    color: element.textColor,
+                                                    backgroundColor: element.buttonColor,
+                                                    fontSize: element.buttonSize,
+                                                    fontFamily: element.fontFamily,
+                                                    '&:hover': {
+                                                        backgroundColor: `${element.buttonColor}CC`,
+                                                    },
+                                                }}
+                                            >
+                                                {element.buttonText}
+                                            </Button>
+                                        )}
+                                        {element.type === 'icon' && (
+                                            <Box
+                                                component={Icons[element.iconType]}
+                                                sx={{
+                                                    color: element.iconColor,
+                                                    fontSize: `${element.iconSize}px`,
+                                                }}
+                                            />
+                                        )}
+                                    </Box>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
             </Paper>
         </Box>
     );

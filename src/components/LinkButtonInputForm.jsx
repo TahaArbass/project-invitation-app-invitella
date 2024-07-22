@@ -136,7 +136,7 @@ const LinkButtonInputForm = ({ onGenerateJSON }) => {
                     onClick={handleSubmit}
                     sx={{ mt: 2 }}
                 >
-                    Generate JSON
+                    Create Button
                 </Button>
             </Box>
         </Paper>

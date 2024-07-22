@@ -1,17 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-    TextField,
-    Button,
-    Typography,
-    Box,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    FormControlLabel,
-    Checkbox,
-    Grid,
-    Paper
+    TextField, Button, Typography, Box,
+    FormControl, InputLabel, Select, MenuItem,
+    FormControlLabel, Checkbox, Grid, Paper
 } from '@mui/material';
 import { debounce } from 'lodash';
 
@@ -154,7 +145,7 @@ const TextInputForm = ({ onGenerateJSON }) => {
                     onClick={handleSubmit}
                     sx={{ mt: 2 }}
                 >
-                    Generate JSON
+                    Create Text
                 </Button>
             </Box>
         </Paper>

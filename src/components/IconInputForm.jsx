@@ -109,7 +109,7 @@ const IconInputForm = ({ onGenerateJSON }) => {
                     onClick={handleSubmit}
                     sx={{ mt: 2 }}
                 >
-                    Generate JSON
+                    Create Icon
                 </Button>
             </Box>
         </Paper>

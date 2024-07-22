@@ -8,7 +8,6 @@ import GuestSearch from './pages/GuestSearch';
 import UploadMedia from './pages/UploadMedia';
 import InvitationCreator from './components/InvitationCreator';
 import InvitationPage from './pages/InvitationPage';
-// import DemoPage from './pages/DemoPage';
 
 const testingTheme = createTheme({
   palette: {
@@ -53,7 +52,7 @@ function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path='/guest-search/:projectName' element={<GuestSearch />} />
           <Route path='/upload/:projectName' element={<UploadMedia />} />
-          <Route path='/' element={<InvitationPage />} />
+          <Route path='/invitation/:projectName' element={<InvitationPage />} />
           <Route path='/create-invitation' element={<InvitationCreator />} />
         </Routes>
       </Router>

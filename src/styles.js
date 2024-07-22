@@ -7,11 +7,12 @@ export const Background = styled(Box)(({ theme, image_url }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    height: '100%',
-    width: '100%',
+    height: '100vh',
+    width: '100vw',
     backgroundImage: `url(${image_url})`,
-    backgroundSize: 'cover',
+    backgroundSize: '100% 100%',
     backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
     zIndex: -1,
 }));
 

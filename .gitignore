@@ -22,5 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# environment
-.env
+#firebase admin sdk
+./src/firebase/project-invitation-web-firebase-adminsdk.json

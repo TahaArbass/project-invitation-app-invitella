@@ -26,7 +26,7 @@ const GuestSearch = () => {
             try {
                 // Fetch project id using project name
                 const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
-                console.log(projectResponse.data);
+
                 // Fetch guest tables associated with the project
                 const guestTablesResponse = await axios.get(`${baseURL}/api/guestTables/project/${projectResponse.data.id}`);
                 const fetchedGuestTables = guestTablesResponse.data;

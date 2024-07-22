@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
-import { Button, Typography, Box, Paper, Grid, Card, CardContent, Input } from '@mui/material';
+import { Button, Typography, Box, Paper, Grid, Card, CardContent, Input, Snackbar, Alert, LinearProgress } from '@mui/material';
+import { TextFields, Link, InsertEmoticon, AddPhotoAlternate } from '@mui/icons-material';
 import TextInputForm from './TextInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
 import IconInputForm from './IconInputForm';
-import { Home, LocationOn, Event, NotInterested, TextFields, Link, InsertEmoticon, AddPhotoAlternate } from '@mui/icons-material';
-
-const Icons = {
-    Home, LocationOn, Event, NotInterested
-};
+import RenderJSON from './RenderJSON';
+import { storage } from '../firebase/firebaseConfig'; // Import Firebase storage
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'; // Firebase Storage imports
+import baseURL from '../apiConfig';
 
 const InvitationCreator = () => {
     const [elements, setElements] = useState([]);
     const [formType, setFormType] = useState(null);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
+    const [backgroundFile, setBackgroundFile] = useState(null); // State for storing the selected background file
+    const [uploadProgress, setUploadProgress] = useState(0); // State for tracking upload progress
 
     const handleAddText = (jsonObject) => {
         setElements([...elements, { type: 'text', ...jsonObject }]);
@@ -31,20 +36,100 @@ const InvitationCreator = () => {
     const handleAddBackground = (event) => {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const backgroundIndex = elements.findIndex(el => el.type === 'background');
-                if (backgroundIndex !== -1) {
-                    const updatedElements = [...elements];
-                    updatedElements[backgroundIndex].url = reader.result;
-                    setElements(updatedElements);
-                } else {
-                    setElements([...elements, { type: 'background', url: reader.result }]);
-                }
-            };
-            reader.readAsDataURL(file);
+            setBackgroundFile(file); // Store the file in state
         }
     };
+
+    const handleSubmit = () => {
+        if (elements.length === 0) {
+            setSnackbarMessage('Please add at least one element to submit');
+            setSnackbarSeverity('warning');
+            setSnackbarOpen(true);
+            return;
+        }
+
+        const uploadPromises = [];
+        let hasBackground = false;
+
+        // Handle background image upload if there's a file selected
+        if (backgroundFile) {
+            const fileName = `${Date.now()}_${backgroundFile.name}`;
+            const storageRef = ref(storage, `photos/${fileName}`);
+            const uploadTask = uploadBytesResumable(storageRef, backgroundFile);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    setSnackbarMessage('Upload failed. Please try again.');
+                    setSnackbarSeverity('error');
+                    setSnackbarOpen(true);
+                },
+                () => {
+                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                        // Ensure background element is added
+                        const updatedElements = elements.filter(el => el.type !== 'background');
+                        updatedElements.push({ type: 'background', url: downloadURL });
+                        setElements(updatedElements);
+                        setUploadProgress(100); // Ensure progress is set to 100% when done
+                    }).catch((error) => {
+                        setSnackbarMessage('Failed to get download URL. Please try again.');
+                        setSnackbarSeverity('error');
+                        setSnackbarOpen(true);
+                    });
+                }
+            );
+
+            // Add a promise to the array to handle the upload completion
+            uploadPromises.push(new Promise((resolve, reject) => {
+                uploadTask.on(
+                    'state_changed',
+                    null,
+                    reject,
+                    () => {
+                        getDownloadURL(uploadTask.snapshot.ref)
+                            .then((downloadURL) => resolve(downloadURL))
+                            .catch(reject);
+                    }
+                );
+            }));
+        } else {
+            // If no background file, resolve immediately
+            uploadPromises.push(Promise.resolve());
+        }
+
+        // Wait for all uploads to finish, then submit the page
+        Promise.all(uploadPromises)
+            .then(() => {
+                return fetch(`${baseURL}/api/pages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        page_data: elements,
+                        priority: 5,
+                        project_id: 11
+                    })
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                setSnackbarMessage('Submission successful!');
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                setSnackbarMessage('Submission failed. Please try again.');
+                setSnackbarSeverity('error');
+                setSnackbarOpen(true);
+            });
+    };
+
 
     const renderForm = () => {
         switch (formType) {
@@ -111,6 +196,23 @@ const InvitationCreator = () => {
                     />
                 </Grid>
             </Grid>
+            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleSubmit}
+                >
+                    Submit Page
+                </Button>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+                {uploadProgress > 0 && (
+                    <Box sx={{ width: '50%', margin: '0 auto' }}>
+                        <Typography variant="body2" color="textSecondary">Upload Progress: {Math.round(uploadProgress)}%</Typography>
+                        <LinearProgress variant="determinate" value={uploadProgress} />
+                    </Box>
+                )}
+            </Box>
             <Box sx={{ mt: 4 }}>
                 {renderForm()}
             </Box>
@@ -127,9 +229,6 @@ const InvitationCreator = () => {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundImage: elements.find(el => el.type === 'background') ? `url(${elements.find(el => el.type === 'background').url})` : 'none',
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
                             }}
                         >
                             <CardContent
@@ -137,61 +236,26 @@ const InvitationCreator = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
                                     width: '100%',
                                 }}
                             >
-                                {elements.filter(el => el.type !== 'background').map((element, index) => (
-                                    <Box key={index} sx={{ mb: 2 }}>
-                                        {element.type === 'text' && (
-                                            <Typography
-                                                variant="body1"
-                                                sx={{
-                                                    color: element.textColor,
-                                                    fontFamily: element.font,
-                                                    fontWeight: element.bold ? 'bold' : 'normal',
-                                                    fontStyle: element.italic ? 'italic' : 'normal',
-                                                    fontSize: `${element.fontSize}px`,
-                                                    textAlign: element.alignment,
-                                                }}
-                                            >
-                                                {element.text}
-                                            </Typography>
-                                        )}
-                                        {element.type === 'linkButton' && (
-                                            <Button
-                                                variant="contained"
-                                                href={element.buttonLink}
-                                                target="_blank"
-                                                sx={{
-                                                    color: element.textColor,
-                                                    backgroundColor: element.buttonColor,
-                                                    fontSize: element.buttonSize,
-                                                    fontFamily: element.fontFamily,
-                                                    '&:hover': {
-                                                        backgroundColor: `${element.buttonColor}CC`,
-                                                    },
-                                                }}
-                                            >
-                                                {element.buttonText}
-                                            </Button>
-                                        )}
-                                        {element.type === 'icon' && (
-                                            <Box
-                                                component={Icons[element.iconType]}
-                                                sx={{
-                                                    color: element.iconColor,
-                                                    fontSize: `${element.iconSize}px`,
-                                                }}
-                                            />
-                                        )}
-                                    </Box>
-                                ))}
+                                <RenderJSON elements={elements} />
                             </CardContent>
                         </Card>
                     </Grid>
                 </Grid>
             </Paper>
+
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={() => setSnackbarOpen(false)}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

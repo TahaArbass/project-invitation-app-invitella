@@ -20,7 +20,7 @@ const fonts = [
     'Alegreya', 'Great Vibes'
 ];
 
-const LinkButtonInputForm = ({ onGenerateJSON }) => {
+const LinkButtonInputForm = ({ onGenerateJSON, index, element }) => {
     const [buttonText, setButtonText] = useState('');
     const [textColor, setTextColor] = useState('#000000');
     const [buttonColor, setButtonColor] = useState('#ffffff');
@@ -30,6 +30,17 @@ const LinkButtonInputForm = ({ onGenerateJSON }) => {
 
     const debouncedSetTextColor = useRef(debounce((color) => setTextColor(color), 300)).current;
     const debouncedSetButtonColor = useRef(debounce((color) => setButtonColor(color), 300)).current;
+
+    useEffect(() => {
+        if (element) {
+            setButtonText(element.buttonText);
+            setTextColor(element.textColor);
+            setButtonColor(element.buttonColor);
+            setButtonSize(element.buttonSize);
+            setButtonLink(element.buttonLink);
+            setFontFamily(element.fontFamily);
+        }
+    }, [element]);
 
     useEffect(() => {
         return () => {
@@ -55,7 +66,7 @@ const LinkButtonInputForm = ({ onGenerateJSON }) => {
             buttonLink,
             fontFamily
         };
-        onGenerateJSON(jsonObject);
+        onGenerateJSON(jsonObject, index);
     };
 
     return (

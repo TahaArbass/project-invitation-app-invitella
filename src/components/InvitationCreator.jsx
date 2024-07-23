@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Typography, Box, Paper, Grid, Card, CardContent, Input, Snackbar, Alert, LinearProgress } from '@mui/material';
-import { TextFields, Link, InsertEmoticon, AddPhotoAlternate } from '@mui/icons-material';
+import { TextFields, Link, InsertEmoticon, AddPhotoAlternate, Delete, Edit } from '@mui/icons-material';
 import TextInputForm from './TextInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
 import IconInputForm from './IconInputForm';
@@ -17,20 +17,42 @@ const InvitationCreator = () => {
     const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success', 'error', 'warning', 'info'
     const [backgroundFile, setBackgroundFile] = useState(null); // State for storing the selected background file
     const [uploadProgress, setUploadProgress] = useState(0); // State for tracking upload progress
+    const [editingIndex, setEditingIndex] = useState(null);
 
-    const handleAddText = (jsonObject) => {
-        setElements([...elements, { type: 'text', ...jsonObject }]);
+    const handleAddText = (jsonObject, index) => {
+        if (index !== null) {
+            const updatedElements = [...elements];
+            updatedElements[index] = { type: 'text', ...jsonObject };
+            setElements(updatedElements);
+        } else {
+            setElements([...elements, { type: 'text', ...jsonObject }]);
+        }
         setFormType(null);
+        setEditingIndex(null);
     };
 
-    const handleAddLinkButton = (jsonObject) => {
-        setElements([...elements, { type: 'linkButton', ...jsonObject }]);
+    const handleAddLinkButton = (jsonObject, index) => {
+        if (index !== null) {
+            const updatedElements = [...elements];
+            updatedElements[index] = { type: 'linkButton', ...jsonObject };
+            setElements(updatedElements);
+        } else {
+            setElements([...elements, { type: 'linkButton', ...jsonObject }]);
+        }
         setFormType(null);
+        setEditingIndex(null);
     };
 
-    const handleAddIcon = (jsonObject) => {
-        setElements([...elements, { type: 'icon', ...jsonObject }]);
+    const handleAddIcon = (jsonObject, index) => {
+        if (index !== null) {
+            const updatedElements = [...elements];
+            updatedElements[index] = { type: 'icon', ...jsonObject };
+            setElements(updatedElements);
+        } else {
+            setElements([...elements, { type: 'icon', ...jsonObject }]);
+        }
         setFormType(null);
+        setEditingIndex(null);
     };
 
     const handleAddBackground = (event) => {
@@ -40,7 +62,7 @@ const InvitationCreator = () => {
         }
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (elements.length === 0) {
             setSnackbarMessage('Please add at least one element to submit');
             setSnackbarSeverity('warning');
@@ -48,97 +70,105 @@ const InvitationCreator = () => {
             return;
         }
 
-        const uploadPromises = [];
-        let hasBackground = false;
+        try {
+            let backgroundURL = null;
 
-        // Handle background image upload if there's a file selected
-        if (backgroundFile) {
-            const fileName = `${Date.now()}_${backgroundFile.name}`;
-            const storageRef = ref(storage, `photos/${fileName}`);
-            const uploadTask = uploadBytesResumable(storageRef, backgroundFile);
+            if (backgroundFile) {
+                backgroundURL = await uploadFile(backgroundFile);
+            }
 
+            const submissionData = {
+                page_data: backgroundURL ?
+                    [...elements, { type: 'background', url: backgroundURL }] :
+                    elements,
+                priority: 5,
+                project_id: 11
+            };
+
+            await submitPage(submissionData);
+            setSnackbarMessage('Submission successful!');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+
+        } catch (error) {
+            console.error('Error:', error);
+            setSnackbarMessage('Submission failed. Please try again.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        }
+    };
+
+    const uploadFile = async (file) => {
+        const fileName = `${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, `photos/${fileName}`);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+
+        return new Promise((resolve, reject) => {
             uploadTask.on(
                 'state_changed',
-                (snapshot) => {
+                snapshot => {
                     const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     setUploadProgress(progress);
                 },
-                (error) => {
-                    setSnackbarMessage('Upload failed. Please try again.');
-                    setSnackbarSeverity('error');
-                    setSnackbarOpen(true);
-                },
-                () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                        // Ensure background element is added
-                        const updatedElements = elements.filter(el => el.type !== 'background');
-                        updatedElements.push({ type: 'background', url: downloadURL });
-                        setElements(updatedElements);
+                error => reject(error),
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         setUploadProgress(100); // Ensure progress is set to 100% when done
-                    }).catch((error) => {
-                        setSnackbarMessage('Failed to get download URL. Please try again.');
-                        setSnackbarSeverity('error');
-                        setSnackbarOpen(true);
-                    });
+                        resolve(downloadURL);
+                    } catch (error) {
+                        reject(error);
+                    }
                 }
             );
+        });
+    };
 
-            // Add a promise to the array to handle the upload completion
-            uploadPromises.push(new Promise((resolve, reject) => {
-                uploadTask.on(
-                    'state_changed',
-                    null,
-                    reject,
-                    () => {
-                        getDownloadURL(uploadTask.snapshot.ref)
-                            .then((downloadURL) => resolve(downloadURL))
-                            .catch(reject);
-                    }
-                );
-            }));
-        } else {
-            // If no background file, resolve immediately
-            uploadPromises.push(Promise.resolve());
+    const submitPage = async (data) => {
+        const response = await fetch(`${baseURL}/api/pages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
 
-        // Wait for all uploads to finish, then submit the page
-        Promise.all(uploadPromises)
-            .then(() => {
-                return fetch(`${baseURL}/api/pages`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        page_data: elements,
-                        priority: 5,
-                        project_id: 11
-                    })
-                });
-            })
-            .then(response => response.json())
-            .then(data => {
-                setSnackbarMessage('Submission successful!');
-                setSnackbarSeverity('success');
-                setSnackbarOpen(true);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                setSnackbarMessage('Submission failed. Please try again.');
-                setSnackbarSeverity('error');
-                setSnackbarOpen(true);
-            });
+        return response.json();
     };
+
+    const handleEdit = (index) => {
+        setEditingIndex(index);
+        const element = elements[index];
+        if (element.type === 'text') {
+            setFormType('text');
+        } else if (element.type === 'linkButton') {
+            setFormType('linkButton');
+        } else if (element.type === 'icon') {
+            setFormType('icon');
+        }
+    };
+
+    const handleDelete = (index) => {
+        setElements(elements.filter((_, i) => i !== index));
+    };
+
 
 
     const renderForm = () => {
         switch (formType) {
             case 'text':
-                return <TextInputForm onGenerateJSON={handleAddText} />;
+                return <TextInputForm
+                    onGenerateJSON={handleAddText} index={editingIndex} element={elements[editingIndex]} />;
             case 'linkButton':
-                return <LinkButtonInputForm onGenerateJSON={handleAddLinkButton} />;
+                return <LinkButtonInputForm
+                    onGenerateJSON={handleAddLinkButton} index={editingIndex} element={elements[editingIndex]} />;
             case 'icon':
-                return <IconInputForm onGenerateJSON={handleAddIcon} />;
+                return <IconInputForm
+                    onGenerateJSON={handleAddIcon} index={editingIndex} element={elements[editingIndex]} />;
             default:
                 return null;
         }
@@ -153,17 +183,17 @@ const InvitationCreator = () => {
                         variant="contained"
                         color="primary"
                         startIcon={<TextFields />}
-                        onClick={() => setFormType('text')}
+                        onClick={() => { setFormType('text'); setEditingIndex(null) }}
                     >
                         Add Text
                     </Button>
                 </Grid>
-                <Grid item>
+                <Grid item >
                     <Button
                         variant="contained"
                         color="primary"
                         startIcon={<Link />}
-                        onClick={() => setFormType('linkButton')}
+                        onClick={() => { setFormType('linkButton'); setEditingIndex(null) }}
                     >
                         Add Link Button
                     </Button>
@@ -173,7 +203,7 @@ const InvitationCreator = () => {
                         variant="contained"
                         color="primary"
                         startIcon={<InsertEmoticon />}
-                        onClick={() => setFormType('icon')}
+                        onClick={() => { setFormType('icon'); setEditingIndex(null) }}
                     >
                         Add Icon
                     </Button>
@@ -205,6 +235,37 @@ const InvitationCreator = () => {
                     Submit Page
                 </Button>
             </Box>
+            <Box sx={{ mt: 4 }}>
+                <Grid container spacing={2}>
+                    {elements.map((element, index) => (
+                        <Grid item xs={6} sm={5} md={2.5} key={index}>
+                            <Box
+                                sx={{
+                                    p: 2,
+                                    border: '2px solid',
+                                    borderColor: 'grey.400',
+                                    borderRadius: 1,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    flexDirection: 'row',
+
+                                }}
+                            >
+                                <Typography variant="body2">{element.type.toUpperCase()}</Typography>
+                                <Box>
+                                    <Button onClick={() => handleEdit(index)}>
+                                        <Edit />
+                                    </Button>
+                                    <Button onClick={() => handleDelete(index)}>
+                                        <Delete />
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
             <Box sx={{ mt: 2 }}>
                 {uploadProgress > 0 && (
                     <Box sx={{ width: '50%', margin: '0 auto' }}>
@@ -229,6 +290,9 @@ const InvitationCreator = () => {
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                backgroundImage: elements.find(el => el.type === 'background') ? `url(${elements.find(el => el.type === 'background').url})` : 'none',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
                             }}
                         >
                             <CardContent

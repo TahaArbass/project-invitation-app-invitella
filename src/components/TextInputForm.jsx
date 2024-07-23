@@ -13,7 +13,7 @@ const fonts = [
     'Alegreya', 'Great Vibes'
 ];
 
-const TextInputForm = ({ onGenerateJSON }) => {
+const TextInputForm = ({ onGenerateJSON, index, element }) => {
     const [text, setText] = useState('');
     const [textColor, setTextColor] = useState('#000000');
     const [font, setFont] = useState('Arial');
@@ -23,6 +23,18 @@ const TextInputForm = ({ onGenerateJSON }) => {
     const [alignment, setAlignment] = useState('left');
 
     const debouncedSetTextColor = useRef(debounce((color) => setTextColor(color), 300)).current;
+
+    useEffect(() => {
+        if (element) {
+            setText(element.text);
+            setTextColor(element.textColor);
+            setFont(element.font);
+            setBold(element.bold);
+            setItalic(element.italic);
+            setFontSize(element.fontSize);
+            setAlignment(element.alignment);
+        }
+    }, [element]);
 
     useEffect(() => {
         // Cancel the debounce on unmount
@@ -45,7 +57,7 @@ const TextInputForm = ({ onGenerateJSON }) => {
             fontSize,
             alignment
         };
-        onGenerateJSON(jsonObject);
+        onGenerateJSON(jsonObject, index);
     };
 
     return (

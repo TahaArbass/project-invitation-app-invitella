@@ -21,12 +21,20 @@ const Icons = {
     NotInterested
 };
 
-const IconInputForm = ({ onGenerateJSON }) => {
+const IconInputForm = ({ onGenerateJSON, index, element }) => {
     const [iconType, setIconType] = useState('Home');
     const [iconColor, setIconColor] = useState('#000000');
     const [iconSize, setIconSize] = useState(24);
 
     const debouncedSetIconColor = useRef(debounce((color) => setIconColor(color), 300)).current;
+
+    useEffect(() => {
+        if (element) {
+            setIconType(element.iconType);
+            setIconColor(element.iconColor);
+            setIconSize(element.iconSize);
+        }
+    }, [element]);
 
     useEffect(() => {
         return () => {
@@ -44,7 +52,7 @@ const IconInputForm = ({ onGenerateJSON }) => {
             iconColor,
             iconSize
         };
-        onGenerateJSON(jsonObject);
+        onGenerateJSON(jsonObject, index);
     };
 
     return (

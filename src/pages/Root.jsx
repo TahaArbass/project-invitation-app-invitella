@@ -1,101 +1,72 @@
-import React from "react";
-import {
-    Typography,
-    AppBar,
-    Button,
-    Card,
-    CardActions,
-    CardContent, CardMedia, CssBaseline, Grid, Toolbar, Container
-} from "@mui/material";
-import { PhotoCamera } from "@mui/icons-material"
-// import Button from '@mui/material/Button';
-// import ButtonGroup from '@mui/material/ButtonGroup';
+import React from 'react';
+import { Container, Typography, Button, Box, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
-// css base line is used to make sure that the css is consistent across all browsers with default styling
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 const Root = () => {
-    // classes is used to apply the custom style to the component
-    // const classes = useStyles();
-
     return (
-        <>
-            <CssBaseline />
-            <AppBar position="relative">
-                <Toolbar>
-                    <PhotoCamera />
-                    <Typography variant="h6">Photo Album</Typography>
-                </Toolbar>
-            </AppBar>
-            <main>
-                <div>
-                    <Container maxWidth="sm">
-                        <Typography variant="h2" align="center" color="textPrimary" gutterBottom mt={7}>
-                            Fuck
-                        </Typography>
-                        <Typography variant="h5" align="center" color="textSecondary" paragraph>
-                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Consectetur, quia laudantium sint, vitae architecto necessitatibus libero consequatur eius dignissimos deserunt amet inventore esse doloribus, neque magni ad quod harum iure.
-                        </Typography>
-                        <div>
-                            <Grid container spacing={2} justifyContent="center">
-                                <Grid item>
-                                    <Button variant="contained" color="secondary" size="large">
-                                        See My Photos
-                                    </Button>
-                                </Grid>
-                                <Grid item>
-                                    <Button variant="contained" color="primary" size="large">
-                                        No Niggers
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </div>
-                    </Container>
-                </div>
-                {/* <ButtonGroup variant="text" aria-label="Basic button group">
-                    <Button>One</Button>
-                    <Button>Two</Button>
-                    <Button>Three</Button>
-                </ButtonGroup> */}
-
-                <Container>
-                    <Grid container spacing={4}>
-                        {cards.map((card) => (
-                            <Grid item key={card} xs={12} sm={6} md={4}>
-                                <Card>
-                                    <CardMedia
-                                        image="https://source.unsplash.com/random"
-                                        title="Image Title"
-                                    />
-                                    <CardContent>
-                                        <Typography variant="h2">
-                                            Heading
-                                        </Typography>
-                                        <Typography variant="h5" gutterBottom>
-                                            This is a media content
-                                        </Typography>
-                                    </CardContent>
-                                    <CardActions>
-                                        <Button size="medium" color="secondary">View</Button>
-                                        <Button size="small" color="primary">Edit</Button>
-                                    </CardActions>
-                                </Card>
-                            </Grid>
-                        ))}
-
-                    </Grid>
-                </Container>
-
-            </main>
-            <footer>
-                <Typography variant="h6" align="center" gutterBottom mt={3}>
-                    Footer
+        <Container component="main" maxWidth="md">
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    mt: 8,
+                    textAlign: 'center',
+                }}
+            >
+                <Typography component="h1" variant="h2" gutterBottom>
+                    Welcome to Project Invitation
                 </Typography>
-                <Typography variant="subtitle1" align="center" color="textSecondary" mb={3}>
-                    Something here to give the footer a purpose
+                <Typography variant="h5" gutterBottom>
+                    The best platform for creating and managing your event invitations.
                 </Typography>
-            </footer>
-        </>
-    )
+                <Box sx={{ mt: 4 }}>
+                    <Button
+                        component={RouterLink}
+                        to="/login"
+                        variant="contained"
+                        color="primary"
+                        sx={{ mr: 2 }}
+                    >
+                        Login
+                    </Button>
+                    <Button
+                        component={RouterLink}
+                        to="/signup"
+                        variant="contained"
+                        color="primary"
+                    >
+                        Sign Up
+                    </Button>
+                </Box>
+            </Box>
+
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    mt: 8,
+                    textAlign: 'center',
+                    borderTop: '2px solid #ddd',
+                    pt: 4,
+                }}
+            >
+                <Typography component="h2" variant="h5" gutterBottom>
+                    Contact Us
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    If you have any questions or need assistance, please reach out to us.
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Phone Number: <a href="tel:+1234567890">+1 (234) 567-890</a>
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                    Email: <Link href="mailto:support@example.com">support@example.com</Link>
+                </Typography>
+            </Box>
+        </Container>
+    );
 };
 
 export default Root;

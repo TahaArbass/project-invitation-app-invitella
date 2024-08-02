@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
@@ -8,12 +7,21 @@ import GuestSearch from './pages/GuestSearch';
 import UploadMedia from './pages/UploadMedia';
 import InvitationCreator from './components/InvitationCreator';
 import InvitationPage from './pages/InvitationPage';
+import ForgotPassword from './pages/ForgotPassword';
+import Root from './pages/Root';
+import DemoUserPage from './pages/DemoUserPage';
+import ProjectManager from './pages/DemoPage';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './utils/protectedRoute';
+import UnauthenticatedRoute from './utils/UnauthenticatedRoute';
+import OwnerPage from './pages/OwnerPage';
+import AdminPage from './pages/AdminPage';
 
 const testingTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#d8b384', // Beige
+      main: '#d8b384  ', // Beige
       light: '#f0e1c0', // Light Beige
       dark: '#aa8c5e', // Dark Beige
     },
@@ -28,14 +36,6 @@ const testingTheme = createTheme({
     accent: {
       main: '#FF6F61', // Coral
     },
-    // background: {
-    //   default: '#2b2b2b', // Dark gray
-    //   paper: '#1d1d1d', // Slightly lighter dark gray
-    // },
-    // text: {
-    //   primary: '#e0e0e0', // Light gray
-    //   secondary: '#b0b0b0', // Softer gray
-    // },
   },
   typography: {
     fontFamily: 'Roboto, Arial, sans-serif',
@@ -46,16 +46,33 @@ function App() {
   return (
     <ThemeProvider theme={testingTheme}>
       <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path='/guest-search/:projectName' element={<GuestSearch />} />
-          <Route path='/upload/:projectName' element={<UploadMedia />} />
-          <Route path='/invitation/:projectName' element={<InvitationPage />} />
-          <Route path='/create-invitation' element={<InvitationCreator />} />
-        </Routes>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Root />} />
+
+            {/* Unauthenticated routes */}
+            <Route element={<UnauthenticatedRoute />}>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+            </Route>
+
+            {/* Shared routes */}
+            <Route path="/guest-search/:projectName" element={<GuestSearch />} />
+            <Route path="/upload/:projectName" element={<UploadMedia />} />
+            <Route path="/invitation/:projectName" element={<InvitationPage />} />
+            <Route path="/demo" element={<ProjectManager />} />
+
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/owner/home" element={<OwnerPage />} />
+              <Route path="/admin/home" element={<AdminPage />} />
+              <Route path="/create-invitation" element={<InvitationCreator />} />
+            </Route>
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

@@ -5,12 +5,16 @@ import { Visibility, VisibilityOff, LockOpen } from '@mui/icons-material';
 import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
 import baseURL from '../apiConfig';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
+    var { currentUser, setCurrentUser } = useAuth();
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = (event) => event.preventDefault();
@@ -49,10 +53,18 @@ const Login = () => {
         setErrors({});
 
         const data = { email, password };
-        console.log(data);
         try {
             const response = await axios.post(`${baseURL}/api/users/login`, data);
-            console.log(response.data); // Handle successful response
+            if (response.status !== 200) {
+                throw new Error('Failed to login.');
+            }
+
+            setCurrentUser(response.data);
+            console.log('Login successful:', currentUser);
+
+            // Redirect to the demo user page
+            navigate('/demo-user');
+
         } catch (error) {
             console.error('Login error:', error.response?.data || error.message);
         }
@@ -113,17 +125,15 @@ const Login = () => {
                     Login
                 </StyledSignButton>
                 <Typography variant="body1" align="center">
-                    <Link href="#" color="primary" underline="hover">
+                    <Link component={RouterLink} to="/forgot-password">
                         Forgot Password?
                     </Link>
                 </Typography>
                 <Typography variant="body1" align="center" sx={{ mt: 1 }}>
                     Don't have an account?{' '}
-                    <RouterLink to="/signup">
-                        <Link color="primary" underline="hover">
-                            Sign Up
-                        </Link>
-                    </RouterLink>
+                    <Link component={RouterLink} to="/signup">
+                        Sign Up
+                    </Link>
                 </Typography>
             </Form>
         </Container>

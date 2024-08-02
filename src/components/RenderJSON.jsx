@@ -51,6 +51,7 @@ const RenderJSON = ({ elements }) => {
                             sx={{
                                 color: element.iconColor,
                                 fontSize: `${element.iconSize}px`,
+                                margin: 'auto',
                             }}
                         />
                     )}

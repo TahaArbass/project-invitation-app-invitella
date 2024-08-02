@@ -61,7 +61,7 @@ const TextInputForm = ({ onGenerateJSON, index, element }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto', mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto' }}>
             <Typography variant="h5" gutterBottom>Text Styling Input Form</Typography>
             <TextField
                 label="Text"
@@ -80,7 +80,7 @@ const TextInputForm = ({ onGenerateJSON, index, element }) => {
                         fullWidth
                         variant="outlined"
                         type="color"
-                        defaultValue={textColor}
+                        value={textColor}
                         onChange={handleColorChange}
                     />
                 </Grid>

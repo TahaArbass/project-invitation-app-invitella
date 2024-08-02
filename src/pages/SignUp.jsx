@@ -4,6 +4,8 @@ import { Typography, IconButton, InputAdornment, Link, FormHelperText, Grid } fr
 import { Visibility, VisibilityOff, PersonAdd } from '@mui/icons-material';
 import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
+import baseURL from '../apiConfig';
+import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +18,7 @@ const SignUp = () => {
         telephone: ''
     });
     const [errors, setErrors] = useState({});
+    const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = (event) => event.preventDefault();
@@ -66,8 +69,8 @@ const SignUp = () => {
             return;
         }
         try {
-            const response = await axios.post('http://localhost:3001/api/users/signup', userData);
-            console.log(response.data); // Handle successful response
+            await axios.post(`${baseURL}/api/users/signup`, userData);
+            navigate('create-invitation');
         } catch (error) {
             console.error('Sign-up error:', error.response?.data || error.message);
         }
@@ -202,18 +205,11 @@ const SignUp = () => {
                 <StyledSignButton type="submit" variant="contained" color="primary" fullWidth>
                     Sign Up
                 </StyledSignButton>
-                <Typography variant="body1" align="center">
-                    <Link href="#" underline="hover">
-                        Forgot Password?
-                    </Link>
-                </Typography>
                 <Typography variant="body1" align="center" sx={{ mt: 1 }}>
                     Already have an account?{' '}
-                    <RouterLink to="/login">
-                        <Link underline="hover">
-                            Login
-                        </Link>
-                    </RouterLink>
+                    <Link component={RouterLink} to="/login">
+                        Login
+                    </Link>
                 </Typography>
             </Form>
         </Container>

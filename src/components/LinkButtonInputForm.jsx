@@ -70,7 +70,7 @@ const LinkButtonInputForm = ({ onGenerateJSON, index, element }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto', mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto' }} >
             <Typography variant="h5" gutterBottom>Link Button Styling Input Form</Typography>
             <TextField
                 label="Button Text"
@@ -95,17 +95,17 @@ const LinkButtonInputForm = ({ onGenerateJSON, index, element }) => {
                         fullWidth
                         variant="outlined"
                         type="color"
-                        defaultValue={textColor}
+                        value={textColor}
                         onChange={handleTextColorChange}
                     />
                 </Grid>
-                <Grid item md={3} xs={4}>
+                <Grid item md={3} xs={5}>
                     <TextField
                         label="Button Color"
                         fullWidth
                         variant="outlined"
                         type="color"
-                        defaultValue={buttonColor}
+                        value={buttonColor}
                         onChange={handleButtonColorChange}
                     />
                 </Grid>
@@ -150,7 +150,7 @@ const LinkButtonInputForm = ({ onGenerateJSON, index, element }) => {
                     Create Button
                 </Button>
             </Box>
-        </Paper>
+        </Paper >
     );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Typography, Box, Paper, Grid, Card, CardContent, Input, Snackbar, Alert, LinearProgress } from '@mui/material';
-import { TextFields, Link, InsertEmoticon, AddPhotoAlternate, Delete, Edit } from '@mui/icons-material';
+import { Button, Typography, Box, Card, CardContent, Grid, Input, Snackbar, Alert, LinearProgress, IconButton } from '@mui/material';
+import { TextFields, Link, InsertEmoticon, AddPhotoAlternate, Delete, Edit, Close } from '@mui/icons-material';
 import TextInputForm from './TextInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
 import IconInputForm from './IconInputForm';
@@ -89,6 +89,7 @@ const InvitationCreator = () => {
             setSnackbarMessage('Submission successful!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
+            setBackgroundFile(null);
 
         } catch (error) {
             console.error('Error:', error);
@@ -100,7 +101,7 @@ const InvitationCreator = () => {
 
     const uploadFile = async (file) => {
         const fileName = `${Date.now()}_${file.name}`;
-        const storageRef = ref(storage, `photos/${fileName}`);
+        const storageRef = ref(storage, `backgrounds/${fileName}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         return new Promise((resolve, reject) => {
@@ -137,6 +138,7 @@ const InvitationCreator = () => {
             throw new Error('Network response was not ok');
         }
 
+        setElements([]); // Clear elements after successful submission
         return response.json();
     };
 
@@ -156,27 +158,42 @@ const InvitationCreator = () => {
         setElements(elements.filter((_, i) => i !== index));
     };
 
-
-
     const renderForm = () => {
-        switch (formType) {
-            case 'text':
-                return <TextInputForm
-                    onGenerateJSON={handleAddText} index={editingIndex} element={elements[editingIndex]} />;
-            case 'linkButton':
-                return <LinkButtonInputForm
-                    onGenerateJSON={handleAddLinkButton} index={editingIndex} element={elements[editingIndex]} />;
-            case 'icon':
-                return <IconInputForm
-                    onGenerateJSON={handleAddIcon} index={editingIndex} element={elements[editingIndex]} />;
-            default:
-                return null;
+        if (formType) {
+            return (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: '10%',
+                        left: '50%',
+                        transform: 'translate(-50%, -10%)',
+                        zIndex: 10,
+                        width: '90%',
+                        maxWidth: '500px',
+                        backgroundColor: 'white',
+                        boxShadow: 24,
+                        p: 1,
+                        borderRadius: 2,
+                    }}
+                >
+
+                    <IconButton onClick={() => { setFormType(null); setEditingIndex(null); }}
+                        sx={{ position: 'absolute', top: 0, right: 0 }}>
+                        <Close />
+                    </IconButton>
+
+                    {formType === 'text' && <TextInputForm onGenerateJSON={handleAddText} index={editingIndex} element={elements[editingIndex]} />}
+                    {formType === 'linkButton' && <LinkButtonInputForm onGenerateJSON={handleAddLinkButton} index={editingIndex} element={elements[editingIndex]} />}
+                    {formType === 'icon' && <IconInputForm onGenerateJSON={handleAddIcon} index={editingIndex} element={elements[editingIndex]} />}
+                </Box>
+            );
         }
+        return null;
     };
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom>Create Your Invitation</Typography>
+            <Typography variant="h4" sx={{ fontWeight: 'bold' }} gutterBottom>Create Your Invitation</Typography>
             <Grid container spacing={2} justifyContent="center">
                 <Grid item>
                     <Button
@@ -188,7 +205,7 @@ const InvitationCreator = () => {
                         Add Text
                     </Button>
                 </Grid>
-                <Grid item >
+                <Grid item>
                     <Button
                         variant="contained"
                         color="primary"
@@ -249,7 +266,6 @@ const InvitationCreator = () => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                     flexDirection: 'row',
-
                                 }}
                             >
                                 <Typography variant="body2">{element.type.toUpperCase()}</Typography>
@@ -265,20 +281,7 @@ const InvitationCreator = () => {
                         </Grid>
                     ))}
                 </Grid>
-            </Box>
-            <Box sx={{ mt: 2 }}>
-                {uploadProgress > 0 && (
-                    <Box sx={{ width: '50%', margin: '0 auto' }}>
-                        <Typography variant="body2" color="textSecondary">Upload Progress: {Math.round(uploadProgress)}%</Typography>
-                        <LinearProgress variant="determinate" value={uploadProgress} />
-                    </Box>
-                )}
-            </Box>
-            <Box sx={{ mt: 4 }}>
-                {renderForm()}
-            </Box>
-            <Paper sx={{ p: 2, mt: 4 }}>
-                <Typography variant="h6">Preview</Typography>
+                <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold' }} gutterBottom>Preview</Typography>
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item>
                         <Card
@@ -286,21 +289,25 @@ const InvitationCreator = () => {
                                 width: '375px', // typical mobile width
                                 height: '667px', // typical mobile height
                                 p: 1,
+                                borderRadius: '20px',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundImage: elements.find(el => el.type === 'background') ? `url(${elements.find(el => el.type === 'background').url})` : 'none',
+                                overflow: 'hidden',
+                                backgroundImage: backgroundFile ? `url(${URL.createObjectURL(backgroundFile)})` : 'none',
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
                             }}
                         >
                             <CardContent
                                 sx={{
+                                    height: '100%',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
-                                    width: '100%',
+                                    overflowY: 'auto',
+                                    overflowX: 'hidden',
                                 }}
                             >
                                 <RenderJSON elements={elements} />
@@ -308,9 +315,16 @@ const InvitationCreator = () => {
                         </Card>
                     </Grid>
                 </Grid>
-            </Paper>
 
-            {/* Snackbar for notifications */}
+                {uploadProgress > 0 && (
+                    <Box sx={{ width: '100%', mt: 2 }}>
+                        <LinearProgress variant="determinate" value={uploadProgress} />
+                        <Typography variant="caption" display="block" gutterBottom>
+                            Uploading background: {Math.round(uploadProgress)}%
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
             <Snackbar
                 open={snackbarOpen}
                 autoHideDuration={6000}
@@ -320,8 +334,10 @@ const InvitationCreator = () => {
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+            {renderForm()}
         </Box>
     );
 };
 
 export default InvitationCreator;
+

@@ -1,4 +1,4 @@
-import { Box, TextField, Button, Autocomplete, Typography } from '@mui/material';
+import { Box, TextField, Button, Autocomplete, Typography, IconButton } from '@mui/material';
 import { styled } from '@mui/system';
 
 export const Background = styled(Box)(({ theme, image_url }) => ({
@@ -13,6 +13,9 @@ export const Background = styled(Box)(({ theme, image_url }) => ({
     backgroundSize: '100% 100%',
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
+    [theme.breakpoints.down('sm')]: {
+        backgroundSize: 'cover',
+    },
     zIndex: -1,
 }));
 
@@ -71,4 +74,13 @@ export const GuestSearchTypography = styled(Typography)(({ theme }) => ({
     [theme.breakpoints.down('sm')]: {
         fontSize: '1.6rem',
     }
+}));
+
+export const BackButton = styled(IconButton)(({ theme }) => ({
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    borderRadius: '5%',
+    boxShadow: '0px 3px 6px rgba(0,0,0,0.4)',
+    padding: '5px',
+    transition: 'all 0.3s ease',
 }));

@@ -56,7 +56,7 @@ const IconInputForm = ({ onGenerateJSON, index, element }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto', mt: 4 }}>
+        <Paper elevation={3} sx={{ p: 3, maxWidth: 600, margin: 'auto' }}>
             <Typography variant="h5" gutterBottom>Icon Styling Input Form</Typography>
             <Grid container spacing={2} alignItems="center">
                 <Grid item xs={12}>
@@ -94,7 +94,7 @@ const IconInputForm = ({ onGenerateJSON, index, element }) => {
                         fullWidth
                         variant="outlined"
                         type="color"
-                        defaultValue={iconColor}
+                        value={iconColor}
                         onChange={handleIconColorChange}
                     />
                 </Grid>

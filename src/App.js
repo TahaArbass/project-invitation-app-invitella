@@ -16,6 +16,7 @@ import ProtectedRoute from './utils/protectedRoute';
 import UnauthenticatedRoute from './utils/UnauthenticatedRoute';
 import OwnerPage from './pages/OwnerPage';
 import AdminPage from './pages/AdminPage';
+import PrivateRoutes from './utils/PrivateRoutes';
 
 const testingTheme = createTheme({
   palette: {
@@ -62,12 +63,16 @@ function App() {
             <Route path="/guest-search/:projectName" element={<GuestSearch />} />
             <Route path="/upload/:projectName" element={<UploadMedia />} />
             <Route path="/invitation/:projectName" element={<InvitationPage />} />
-            <Route path="/demo" element={<ProjectManager />} />
+            <Route path="/demo" element={<DemoUserPage />} />
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/owner/home" element={<OwnerPage />} />
-              <Route path="/admin/home" element={<AdminPage />} />
+              <Route element={<PrivateRoutes allowedRoles={['owner', 'admin', 'superadmin']} />}>
+                <Route path="/owner/home" element={<OwnerPage />} />
+              </Route>
+              <Route element={<PrivateRoutes allowedRoles={['admin', 'superadmin']} />}>
+                <Route path="/admin/home" element={<AdminPage />} />
+              </Route>
               <Route path="/create-invitation" element={<InvitationCreator />} />
             </Route>
           </Routes>

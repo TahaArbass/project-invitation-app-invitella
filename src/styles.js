@@ -78,9 +78,10 @@ export const GuestSearchTypography = styled(Typography)(({ theme }) => ({
 
 export const BackButton = styled(IconButton)(({ theme }) => ({
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
     borderRadius: '5%',
     boxShadow: '0px 3px 6px rgba(0,0,0,0.4)',
-    padding: '5px',
-    transition: 'all 0.3s ease',
+    padding: '3px',
+    [theme.breakpoints.down('sm')]: {
+        Padding: '0x'
+    }
 }));

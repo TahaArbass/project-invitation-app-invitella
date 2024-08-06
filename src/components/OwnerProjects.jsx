@@ -1,18 +1,15 @@
 // OwnerProjects.jsx
-import React, { useState, useEffect } from 'react';
-import ProjectDetails from './ProjectDetails'; // Displays project details\
+import React from 'react';
+import ProjectDetails from './ProjectDetails'; // Displays project details
+import { useProject } from './OwnerContainer';
 
-const OwnerProjects = ({ project }) => {
-    const [selectedProject, setSelectedProject] = useState(null);
-
-    useEffect(() => {
-        setSelectedProject(project);
-    }, [project]);
+const OwnerProjects = () => {
+    const { selectedProject } = useProject();
 
     return (
         <>
             {selectedProject && (
-                <ProjectDetails project={selectedProject} />
+                <ProjectDetails />
             )}
         </>
     );

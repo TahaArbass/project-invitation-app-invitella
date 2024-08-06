@@ -32,9 +32,11 @@ const UploadMedia = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [selectedFilesCount, setSelectedFilesCount] = useState(0);
+    const [project_id, setProject_id] = useState(-1);
+
 
     const MAX_FILES = 15;
-    const MAX_FILE_SIZE_MB = 15;
+    const MAX_FILE_SIZE_MB = 5;
 
     useEffect(() => {
         const fetchGuests = async () => {
@@ -42,22 +44,12 @@ const UploadMedia = () => {
                 // Fetch project id using project name
                 const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
                 // Fetch guest tables associated with the project
-                const guestTablesResponse = await axios.get(`${baseURL}/api/guestTables/project/${projectResponse.data.id}`);
-                const fetchedGuestTables = guestTablesResponse.data;
-                // Extract guest IDs from guestTables
-                const guestIds = fetchedGuestTables.map(guestTable => guestTable.guest_id);
-
-                // Fetch details of each guest using guest IDs
-                const guestPromises = guestIds.map(async (guestId) => {
-                    const guestResponse = await axios.get(`${baseURL}/api/guests/${guestId}`);
-                    return guestResponse.data;
-                });
-
-                // Resolve all guest details promises
-                const fetchedGuests = await Promise.all(guestPromises);
-
+                const guests = await axios.get(`${baseURL}/api/guests/project/${projectResponse.data.id}`);
+                setProject_id(projectResponse.data.id);
+                console.log('Project ID:', projectResponse.data.id);
+                console.log('Guests:', guests.data);
                 // Update state with fetched data
-                setGuests(fetchedGuests);
+                setGuests(guests.data);
                 setLoading(false);
             } catch (err) {
                 setError('Failed to fetch guests');
@@ -110,7 +102,7 @@ const UploadMedia = () => {
                 });
 
                 // Send upload request to backend
-                const uploadResponse = await axios.post(`${baseURL}/api/photos/upload/${selectedGuest.id}`, formData, {
+                const uploadResponse = await axios.post(`${baseURL}/api/photos/upload/${selectedGuest.id}/${project_id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }

@@ -193,8 +193,8 @@ const InvitationCreator = () => {
 
     return (
         <Box sx={{ p: 3 }}>
-            <Typography variant="h4" sx={{ fontWeight: 'bold' }} gutterBottom>Create Your Invitation</Typography>
-            <Grid container spacing={2} justifyContent="center">
+            <Typography variant="h4" align='center' sx={{ fontWeight: 'bold' }} gutterBottom>Page Editor</Typography>
+            <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
                 <Grid item>
                     <Button
                         variant="contained"
@@ -252,6 +252,15 @@ const InvitationCreator = () => {
                     Submit Page
                 </Button>
             </Box>
+            {/* Uplaod progress */}
+            {uploadProgress > 0 && (
+                <Box sx={{ width: '100%', mt: 2 }}>
+                    <LinearProgress variant="determinate" value={uploadProgress} />
+                    <Typography variant="caption" display="block" gutterBottom>
+                        Uploading background: {Math.round(uploadProgress)}%
+                    </Typography>
+                </Box>
+            )}
             <Box sx={{ mt: 4 }}>
                 <Grid container spacing={2}>
                     {elements.map((element, index) => (
@@ -281,7 +290,7 @@ const InvitationCreator = () => {
                         </Grid>
                     ))}
                 </Grid>
-                <Typography variant="h5" sx={{ mt: 4, fontWeight: 'bold' }} gutterBottom>Preview</Typography>
+                <Typography variant="h5" align='center' sx={{ mt: 4, fontWeight: 'bold' }} gutterBottom>Preview</Typography>
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item>
                         <Card
@@ -315,15 +324,6 @@ const InvitationCreator = () => {
                         </Card>
                     </Grid>
                 </Grid>
-
-                {uploadProgress > 0 && (
-                    <Box sx={{ width: '100%', mt: 2 }}>
-                        <LinearProgress variant="determinate" value={uploadProgress} />
-                        <Typography variant="caption" display="block" gutterBottom>
-                            Uploading background: {Math.round(uploadProgress)}%
-                        </Typography>
-                    </Box>
-                )}
             </Box>
             <Snackbar
                 open={snackbarOpen}

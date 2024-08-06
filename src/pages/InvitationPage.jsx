@@ -18,36 +18,37 @@ const InvitationPage = () => {
     const [elements, setElements] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // Fetch project and pages data
-    const fetchPages = async () => {
-        try {
-            const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
-            if (projectResponse.data && projectResponse.data.id) {
-                const pagesResponse = await axios.get(`${baseURL}/api/pages/project/${projectResponse.data.id}`);
-                if (pagesResponse.data && pagesResponse.data.length > 0) {
-                    const firstPage = pagesResponse.data[0];
-                    setBgUrl(firstPage.page_data[0]?.background?.url || '');
-                    setElements(pagesResponse.data);
+
+
+    useEffect(() => {
+        // Fetch project and pages data
+        const fetchPages = async () => {
+            try {
+                const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
+                if (projectResponse.data && projectResponse.data.id) {
+                    const pagesResponse = await axios.get(`${baseURL}/api/pages/project/${projectResponse.data.id}`);
+                    if (pagesResponse.data && pagesResponse.data.length > 0) {
+                        const firstPage = pagesResponse.data[0];
+                        setBgUrl(firstPage.page_data[0]?.background?.url || '');
+                        setElements(pagesResponse.data);
+                    } else {
+                        setBgUrl('');
+                        setElements([]);
+                    }
                 } else {
                     setBgUrl('');
                     setElements([]);
                 }
-            } else {
+            } catch (error) {
+                console.error('Failed to fetch project or pages:', error);
                 setBgUrl('');
                 setElements([]);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Failed to fetch project or pages:', error);
-            setBgUrl('');
-            setElements([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
+        };
         fetchPages();
-    }, []);
+    }, [projectName]);
 
     const handleSlideChange = (swiper) => {
         setCurrentSlide(swiper.activeIndex);

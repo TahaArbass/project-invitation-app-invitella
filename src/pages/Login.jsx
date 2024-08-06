@@ -60,10 +60,8 @@ const Login = () => {
             }
 
             setCurrentUser(response.data);
-            console.log('Login successful:', currentUser);
-
-            // Redirect to the demo user page
-            navigate('/demo-user');
+            // Redirect to home page based on role
+            navigate('/' + currentUser.dbUser.role + '/home');
 
         } catch (error) {
             console.error('Login error:', error.response?.data || error.message);

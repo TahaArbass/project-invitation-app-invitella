@@ -1,11 +1,11 @@
 import React from 'react';
-
+import GuestList from './Lists/GuestList';
+import { Box } from '@mui/material';
 const Guests = () => {
     return (
-        <div>
-            {/* Your guests management logic here */}
-            <h2>Guests</h2>
-        </div>
+        <Box sx={{ p: 2 }}>
+            <GuestList />
+        </Box>
     );
 };
 

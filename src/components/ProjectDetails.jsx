@@ -1,33 +1,38 @@
-import React from 'react';
-import { Typography, Tabs, Tab, Box } from '@mui/material';
+import React, { useState } from 'react';
+import { Tabs, Tab, Box } from '@mui/material';
 import InvitationCreator from './InvitationCreator';
 import Guests from './GuestsComponent';
 import UploadedMedia from './UploadedMedia';
+import ProjectDetailsTab from './ProjectDetailsTab';
 import { Email, People, PhotoLibrary, Info } from '@mui/icons-material';
+// import { useProject } from './OwnerContainer';
 
-const ProjectDetails = ({ project }) => {
-    const [tabIndex, setTabIndex] = React.useState(0);
+const ProjectDetails = () => {
+    const [tabIndex, setTabIndex] = useState(0);
+    // const { selectedProject } = useProject();
 
     const handleChange = (event, newValue) => {
         setTabIndex(newValue);
     };
 
     return (
-        <div>
-            <Typography variant="h4" align="center" gutterBottom sx={{ mt: 2 }}>
-                Project: {project.title}
-            </Typography>
-            <Tabs
-                value={tabIndex}
-                onChange={handleChange}
-                variant="scrollable"
-                scrollButtons="auto"
-            >
-                <Tab icon={<Email />} label="Invitation" />
-                <Tab icon={<People />} label="Guests" />
-                <Tab icon={<PhotoLibrary />} label="Uploaded Media" />
-                <Tab icon={<Info />} label="Details" />
-            </Tabs>
+        <>
+            {/* <Typography variant="h3" align="center" gutterBottom sx={{ mt: 2, fontWeight: 'bold' }}>
+                Project: {selectedProject.title}
+            </Typography> */}
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <Tabs
+                    value={tabIndex}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                >
+                    <Tab icon={<Email />} label="Invitation" />
+                    <Tab icon={<People />} label="Guests" />
+                    <Tab icon={<PhotoLibrary />} label="Uploaded Media" />
+                    <Tab icon={<Info />} label="Details" />
+                </Tabs>
+            </Box>
             <TabPanel value={tabIndex} index={0}>
                 <InvitationCreator />
             </TabPanel>
@@ -38,11 +43,9 @@ const ProjectDetails = ({ project }) => {
                 <UploadedMedia />
             </TabPanel>
             <TabPanel value={tabIndex} index={3}>
-                <Typography variant="body1" align="center" gutterBottom sx={{ mt: 2 }}>
-                    "here goes the project details"
-                </Typography>
+                <ProjectDetailsTab />
             </TabPanel>
-        </div>
+        </>
     );
 };
 

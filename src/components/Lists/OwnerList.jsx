@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Button, Box, TablePagination, Paper } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import {
+    Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
+    Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography
+} from '@mui/material';
+import { Edit, Delete, Add } from '@mui/icons-material';
+import OwnerForm from '../Forms/OwnerForm'; // Create this form similar to GuestForm
+import Notification from '../Notification';
 
-const OwnerList = ({ owners, onEdit, onDelete, onViewProjects }) => {
+const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [editingOwner, setEditingOwner] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [notification, setNotification] = useState({ open: false, message: '' });
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -15,41 +23,94 @@ const OwnerList = ({ owners, onEdit, onDelete, onViewProjects }) => {
         setPage(0);
     };
 
+    const handleAddOrEditOwner = (owner) => {
+        try {
+            onAddOrEdit(owner);
+            setNotification({ open: true, message: 'Owner saved successfully' });
+        } catch (error) {
+            console.error('Error saving owner:', error);
+            setNotification({ open: true, message: 'Failed to save owner' });
+        } finally {
+            setIsFormVisible(false);
+            setEditingOwner(null);
+        }
+    };
+
+    const handleEditClick = (owner) => {
+        setEditingOwner(owner);
+        setIsFormVisible(true);
+    };
+
+    const toggleFormVisibility = () => {
+        setIsFormVisible(!isFormVisible);
+        setEditingOwner(null);
+    };
+
     return (
-        <Paper>
-            <TableContainer>
+        <Box sx={{ padding: 2 }}>
+            <Typography variant='h4' align='center' fontWeight='bold' gutterBottom>
+                Owners
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Button onClick={toggleFormVisibility} variant="contained" color="primary">
+                    <Add />
+                    {isFormVisible ? 'Close Form' : 'Add Owner'}
+                </Button>
+            </Box>
+            <Dialog open={isFormVisible} onClose={toggleFormVisibility}>
+                <DialogTitle>{editingOwner ? 'Edit Owner' : 'Add Owner'}</DialogTitle>
+                <DialogContent>
+                    <OwnerForm onSubmit={handleAddOrEditOwner} owner={editingOwner} isEditing={Boolean(editingOwner)} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={toggleFormVisibility} color="primary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>
-                    <TableHead>
+                    <TableHead sx={{ backgroundColor: 'bisque' }}>
                         <TableRow>
-                            <TableCell>Username</TableCell>
-                            <TableCell>First Name</TableCell>
-                            <TableCell>Last Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Telephone</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell><Typography>Username</Typography></TableCell>
+                            <TableCell><Typography>First Name</Typography></TableCell>
+                            <TableCell><Typography>Last Name</Typography></TableCell>
+                            <TableCell><Typography>Email</Typography></TableCell>
+                            <TableCell><Typography>Telephone</Typography></TableCell>
+                            <TableCell><Typography>Actions</Typography></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {owners.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((owner) => (
-                            <TableRow key={owner.id}>
-                                <TableCell>{owner.username}</TableCell>
-                                <TableCell>{owner.first_name}</TableCell>
-                                <TableCell>{owner.last_name}</TableCell>
-                                <TableCell>{owner.email}</TableCell>
-                                <TableCell>{owner.telephone}</TableCell>
-                                <TableCell>
-                                    <Box display="flex" gap={2}>
-                                        <IconButton onClick={() => onEdit(owner)}>
-                                            <Edit />
-                                        </IconButton>
-                                        <IconButton color='warning' onClick={() => onDelete(owner.id)}>
-                                            <Delete />
-                                        </IconButton>
-                                        <Button onClick={() => onViewProjects(owner)}>View Projects</Button>
-                                    </Box>
+                        {owners.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={6}>
+                                    <Typography variant="body2" color="textSecondary" align="center">
+                                        No owners found
+                                    </Typography>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        ) : (
+                            owners.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((owner) => (
+                                <TableRow key={owner.id} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
+                                    <TableCell>{owner.username}</TableCell>
+                                    <TableCell>{owner.first_name}</TableCell>
+                                    <TableCell>{owner.last_name}</TableCell>
+                                    <TableCell>{owner.email}</TableCell>
+                                    <TableCell>{owner.telephone}</TableCell>
+                                    <TableCell>
+                                        <Box display="flex" gap={1}>
+                                            <IconButton onClick={() => handleEditClick(owner)} sx={{ '&:hover': { color: 'blue' } }}>
+                                                <Edit />
+                                            </IconButton>
+                                            <IconButton color='warning' onClick={() => onDelete(owner.id)} sx={{ '&:hover': { color: 'red' } }}>
+                                                <Delete />
+                                            </IconButton>
+                                            <Button onClick={() => onViewProjects(owner)}>View Projects</Button>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
@@ -62,7 +123,12 @@ const OwnerList = ({ owners, onEdit, onDelete, onViewProjects }) => {
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
             />
-        </Paper>
+            <Notification
+                open={notification.open}
+                message={notification.message}
+                onClose={() => setNotification({ open: false, message: '' })}
+            />
+        </Box>
     );
 };
 

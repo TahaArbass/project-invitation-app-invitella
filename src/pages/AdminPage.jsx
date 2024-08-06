@@ -10,8 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import baseURL from '../apiConfig';
 import OwnerContainer from '../components/OwnerContainer';
-import { ArrowBack } from '@mui/icons-material';
-import { BackButton } from '../styles';
 
 const AdminPage = () => {
     const [owners, setOwners] = useState([]);
@@ -81,38 +79,30 @@ const AdminPage = () => {
     return (
         <>
             <CommonAppBar
-                userRole="Admin"
+                userRole="admin"
                 onProfileClick={handleProfileClick}
                 onLogoutClick={handleLogoutClick}
+                onBackToOwnersClick={() => setSelectedOwner(null)}
             />
-            <Box sx={{ padding: 2 }}>
-                {selectedOwner ? (
-                    <>
-                        <BackButton onClick={() => setSelectedOwner(null)}>
-                            <ArrowBack />
-                            <Typography variant='body1'>Back to Owners</Typography>
-                        </BackButton>
-                        <OwnerContainer owner={selectedOwner} />
-                    </>
+            {selectedOwner ? (
+                <>
+                    <OwnerContainer owner={selectedOwner} />
+                </>
 
-                ) : (
-                    <>
-                        <Typography variant="h4" align="center" gutterBottom>
-                            Owners
-                        </Typography>
-                        {loading ? (
-                            <Typography>Loading...</Typography>
-                        ) : (
-                            <OwnerList
-                                owners={owners}
-                                onEdit={handleEditOwner}
-                                onDelete={handleDeleteOwner}
-                                onViewProjects={handleViewProjects}
-                            />
-                        )}
-                    </>
-                )}
-            </Box>
+            ) : (
+                <>
+                    {loading ? (
+                        <Typography>Loading...</Typography>
+                    ) : (
+                        <OwnerList
+                            owners={owners}
+                            onEdit={handleEditOwner}
+                            onDelete={handleDeleteOwner}
+                            onViewProjects={handleViewProjects}
+                        />
+                    )}
+                </>
+            )}
             <Notification
                 open={notification.open}
                 message={notification.message}

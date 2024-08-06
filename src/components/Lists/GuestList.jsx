@@ -9,7 +9,6 @@ import GuestForm from '../Forms/GuestForm';
 import { useProject } from '../OwnerContainer';
 import { Delete, Edit, Add } from '@mui/icons-material';
 import Notification from '../Notification';
-import { set } from 'lodash';
 
 const GuestList = () => {
     const [guests, setGuests] = useState([]);
@@ -18,7 +17,6 @@ const GuestList = () => {
     const [editingGuest, setEditingGuest] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [notification, setNotification] = useState({ open: false, message: '' });
 
     const { selectedProject } = useProject();
@@ -32,7 +30,7 @@ const GuestList = () => {
                 setGuests(response.data);
             } catch (error) {
                 console.error('Error fetching guest list:', error);
-                setError('Failed to fetch guests');
+                setNotification({ open: true, message: 'Failed to fetch guests' });
             } finally {
                 setLoading(false);
             }

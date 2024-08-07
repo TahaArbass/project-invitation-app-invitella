@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Box, Typography, Button, Grid, Card, CardContent, IconButton } from '@mui/material';
+import { Box, Typography, Button, Grid, Card, CardContent, IconButton, CircularProgress, Dialog, DialogContent } from '@mui/material';
 import OwnerProjects from '../components/OwnerProjects';
 import Notification from '../components/Notification';
 import ProjectForm from '../components/ProjectForm';
@@ -56,7 +56,6 @@ const OwnerContainer = ({ owner }) => {
             // Add new project
             setProjects([...projects, project]);
         }
-        handleFormClose();
     };
 
     const handleNotificationClose = () => {
@@ -82,7 +81,7 @@ const OwnerContainer = ({ owner }) => {
                         </>
                     ) : (
                         <>
-                            <Typography variant="h3" align="center" fontWeight={'bold'} gutterBottom sx={{ mt: 2 }}>
+                            <Typography variant="h4" align="center" fontWeight={'bold'} gutterBottom sx={{ mt: 2 }}>
                                 Projects
                             </Typography>
                             <Button variant="contained" color="primary" onClick={handleAddProject}>
@@ -90,7 +89,9 @@ const OwnerContainer = ({ owner }) => {
                                 Add Project
                             </Button>
                             {loading ? (
-                                <Typography>Loading...</Typography>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                                    <CircularProgress />
+                                </Box>
                             ) : (
                                 <Grid container spacing={2} marginTop={2}>
                                     {projects.length > 0 && (
@@ -109,16 +110,14 @@ const OwnerContainer = ({ owner }) => {
                         </>
                     )}
                 </Box>
-                {showForm && (
-                    <Box sx={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', bgcolor: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                        <Box sx={{ position: 'relative', width: '80%', maxWidth: '500px', bgcolor: 'background.paper', p: 2, borderRadius: 1, boxShadow: 3 }}>
-                            <IconButton onClick={handleFormClose} sx={{ position: 'absolute', top: 8, right: 8 }}>
-                                <Close />
-                            </IconButton>
-                            <ProjectForm owner_id={owner.id} project={selectedProject} onSave={handleSaveProject} />
-                        </Box>
-                    </Box>
-                )}
+                <Dialog open={showForm} onClose={handleFormClose} fullWidth>
+                    <DialogContent>
+                        <IconButton onClick={handleFormClose} sx={{ position: 'absolute', right: 0 }}>
+                            <Close />
+                        </IconButton>
+                        <ProjectForm owner_id={owner.id} onSave={handleSaveProject} />
+                    </DialogContent>
+                </Dialog>
                 <Notification open={notification.open} message={notification.message} onClose={handleNotificationClose} />
             </ProjectContext.Provider>
         </>

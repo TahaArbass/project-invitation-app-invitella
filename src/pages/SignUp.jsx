@@ -5,6 +5,7 @@ import { Visibility, VisibilityOff, PersonAdd } from '@mui/icons-material';
 import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
 import baseURL from '../apiConfig';
+import Notification from '../components/Notification';
 import { useNavigate } from 'react-router-dom';
 
 const SignUp = () => {
@@ -18,6 +19,7 @@ const SignUp = () => {
         telephone: ''
     });
     const [errors, setErrors] = useState({});
+    const [notification, setNotification] = useState({ open: false, message: '' });
     const navigate = useNavigate();
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -70,9 +72,12 @@ const SignUp = () => {
         }
         try {
             await axios.post(`${baseURL}/api/users/signup`, userData);
-            navigate('create-invitation');
+
+            // display an alert to the user
+
+            navigate('/login');
         } catch (error) {
-            console.error('Sign-up error:', error.response?.data || error.message);
+            setNotification({ open: true, message: 'Failed to sign up:' + error.response?.data?.error });
         }
     };
 
@@ -212,6 +217,11 @@ const SignUp = () => {
                     </Link>
                 </Typography>
             </Form>
+            <Notification
+                open={notification.open}
+                message={notification.message}
+                onClose={() => setNotification({ open: false, message: '' })}
+            />
         </Container>
     );
 };

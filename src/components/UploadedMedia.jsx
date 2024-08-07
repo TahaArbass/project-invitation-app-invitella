@@ -6,6 +6,7 @@ import Notification from './Notification';
 import { Card, Grid, Typography, CircularProgress, Box, Checkbox, Button, CardActionArea, LinearProgress } from '@mui/material';
 import { saveAs } from 'file-saver';
 import ImageWithBlurhash from './ImageBlurHashComponent';
+import ConfirmAction from './utils/ConfirmAction';
 
 const UploadedMedia = () => {
     const { selectedProject } = useProject();
@@ -14,6 +15,7 @@ const UploadedMedia = () => {
     const [notification, setNotification] = useState({ open: false, message: '' });
     const [selectedPhotos, setSelectedPhotos] = useState([]);
     const [downloading, setDownloading] = useState(false);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
     useEffect(() => {
         if (!selectedProject?.id) return; // Prevent fetching if no project ID
@@ -62,11 +64,12 @@ const UploadedMedia = () => {
             });
     };
 
-    const handleDelete = () => {
+    const confirmDelete = () => {
         const deletePromises = selectedPhotos.map((photo) => {
             return axios.delete(`${baseURL}/api/photos/${photo.id}`)
                 .then(() => {
                     setPhotos((prevPhotos) => prevPhotos.filter((p) => p.id !== photo.id));
+                    setIsConfirmOpen(false);
                 });
         });
 
@@ -78,6 +81,10 @@ const UploadedMedia = () => {
             .catch(() => {
                 setNotification({ open: true, message: 'Failed to delete photo(s)' });
             });
+    };
+
+    const handleDelete = () => {
+        setIsConfirmOpen(true);
     };
 
     if (loading) {
@@ -99,7 +106,7 @@ const UploadedMedia = () => {
                         <Button variant="contained" color="primary" onClick={handleDownload} disabled={downloading}>
                             Download
                         </Button>
-                        <Button variant="contained" color="secondary" onClick={handleDelete} disabled={downloading}>
+                        <Button variant="contained" color='error' onClick={handleDelete} disabled={downloading}>
                             Delete
                         </Button>
                     </Box>
@@ -141,6 +148,13 @@ const UploadedMedia = () => {
                     )}
                 </Grid>
             </Box>
+            <ConfirmAction
+                open={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Photo(s)"
+                content={`Are you sure you want to delete ${selectedPhotos.length} photo(s)?`}
+            />
 
             <Notification
                 open={notification.open}

@@ -5,7 +5,6 @@ import Guests from './GuestsComponent';
 import UploadedMedia from './UploadedMedia';
 import ProjectDetailsTab from './ProjectDetailsTab';
 import { Email, People, PhotoLibrary, Info } from '@mui/icons-material';
-// import { useProject } from './OwnerContainer';
 
 const ProjectDetails = () => {
     const [tabIndex, setTabIndex] = useState(0);

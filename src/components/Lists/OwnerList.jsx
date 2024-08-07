@@ -28,7 +28,6 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
             onAddOrEdit(owner);
             setNotification({ open: true, message: 'Owner saved successfully' });
         } catch (error) {
-            console.error('Error saving owner:', error);
             setNotification({ open: true, message: 'Failed to save owner' });
         } finally {
             setIsFormVisible(false);
@@ -105,7 +104,10 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
                                             <IconButton color='warning' onClick={() => onDelete(owner.id)} sx={{ '&:hover': { color: 'red' } }}>
                                                 <Delete />
                                             </IconButton>
-                                            <Button onClick={() => onViewProjects(owner)}>View Projects</Button>
+                                            <Button color='secondary' onClick={() => onViewProjects(owner)}
+                                                sx={{ borderRadius: 4 }}>
+                                                View Projects
+                                            </Button>
                                         </Box>
                                     </TableCell>
                                 </TableRow>

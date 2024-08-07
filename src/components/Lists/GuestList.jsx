@@ -9,6 +9,7 @@ import GuestForm from '../Forms/GuestForm';
 import { useProject } from '../OwnerContainer';
 import { Delete, Edit, Add } from '@mui/icons-material';
 import Notification from '../Notification';
+import ConfirmAction from '../utils/ConfirmAction';
 
 const GuestList = () => {
     const [guests, setGuests] = useState([]);
@@ -18,6 +19,8 @@ const GuestList = () => {
     const [isFormVisible, setIsFormVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState({ open: false, message: '' });
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [deleteGuestId, setDeleteGuestId] = useState(null);
 
     const { selectedProject } = useProject();
 
@@ -63,11 +66,18 @@ const GuestList = () => {
         setIsFormVisible(true);
     };
 
-    const handleDeleteClick = async (guestId) => {
+    const handleDeleteClick = (guestId) => {
+        setIsConfirmOpen(true);
+        setDeleteGuestId(guestId);
+    };
+
+    const confirmDeleteGuest = async (guestId) => {
         try {
             await axios.delete(`${baseURL}/api/guests/${guestId}`);
             setGuests(guests.filter(guest => guest.id !== guestId));
             setNotification({ open: true, message: 'Guest deleted successfully' });
+            setIsConfirmOpen(false);
+            setDeleteGuestId(null);
         } catch (error) {
             console.error('Error deleting guest:', error);
             setNotification({ open: true, message: 'Failed to delete guest' });
@@ -126,7 +136,7 @@ const GuestList = () => {
                     <GuestForm onSubmit={handleAddOrEditGuest} guest={editingGuest} isEditing={Boolean(editingGuest)} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={toggleFormVisibility} color="primary">
+                    <Button onClick={toggleFormVisibility} color="secondary">
                         Cancel
                     </Button>
                 </DialogActions>
@@ -184,6 +194,13 @@ const GuestList = () => {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            <ConfirmAction
+                open={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={() => confirmDeleteGuest(deleteGuestId)}
+                title="Confirm Delete"
+                content="Are you sure you want to delete this guest? This action cannot be undone."
             />
             <Notification
                 open={notification.open}

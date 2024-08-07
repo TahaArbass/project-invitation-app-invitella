@@ -1,7 +1,7 @@
 // AdminPage.js
 import React, { useState, useEffect } from 'react';
 import CommonAppBar from '../components/CommonAppBar';
-import { Box, Typography } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import Notification from '../components/Notification';
 import OwnerList from '../components/Lists/OwnerList';
 import { signOut, getAuth } from 'firebase/auth';
@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import baseURL from '../apiConfig';
 import OwnerContainer from '../components/OwnerContainer';
+import MyProfile from '../components/MyProfile';
+
 
 const AdminPage = () => {
     const [owners, setOwners] = useState([]);
@@ -19,7 +21,7 @@ const AdminPage = () => {
     const auth = getAuth(); // Initialize the Firebase Auth instance
     const { currentUser, setCurrentUser, setIsLoggedIn } = useAuth();
     const navigate = useNavigate();
-
+    const [showProfile, setShowProfile] = useState(false);
     useEffect(() => {
         // Fetch owners here
         const fetchOwners = async () => {
@@ -38,7 +40,7 @@ const AdminPage = () => {
 
     const handleProfileClick = () => {
         // Handle profile click
-        setNotification({ open: true, message: 'Profile clicked' });
+        setShowProfile(true);
     };
 
     const handleLogoutClick = () => {
@@ -60,15 +62,41 @@ const AdminPage = () => {
         setNotification({ open: false, message: '' });
     };
 
-    const handleEditOwner = (owner) => {
-        // Handle edit owner
-        setNotification({ open: true, message: `Edit owner: ${owner.username}` });
+    const handleAddOrEditOwner = (owner) => {
+        // add or edit the owner
+        const ownerIndex = owners.findIndex((o) => o.id === owner.id);
+        if (ownerIndex === -1) {
+            // add the owner
+            axios.post(`${baseURL}/api/users/signup`, owner)
+                .then((response) => {
+                    console.log('Owner added successfully:', response.data);
+                    setOwners([...owners, response.data.dbUser]);
+                    // add the owner to the linking table
+                    axios.post(`${baseURL}/api/admins`, { owner_id: response.data.dbUser.id, admin_id: currentUser.dbUser.id });
+
+                    setNotification({ open: true, message: 'Owner added successfully' + response.data.dbUser.username });
+                })
+                .catch((error) => {
+                    console.error('Error adding owner:', error);
+                    setNotification({ open: true, message: `Failed to add owner: ${error.response.data.error}` });
+                });
+
+
+        }
+
     };
 
     const handleDeleteOwner = (ownerId) => {
-        // Handle delete owner
-        setNotification({ open: true, message: `Delete owner with ID: ${ownerId}` });
-        // You can implement actual delete logic here
+        // delete the owner
+        axios.delete(`${baseURL}/api/users/${ownerId}`)
+            .then(() => {
+                setOwners(owners.filter(owner => owner.id !== ownerId));
+                setNotification({ open: true, message: 'Owner deleted successfully' });
+            })
+            .catch((error) => {
+                console.error('Error deleting owner:', error);
+                setNotification({ open: true, message: 'Failed to delete owner' });
+            });
     };
 
     const handleViewProjects = (owner) => {
@@ -84,25 +112,27 @@ const AdminPage = () => {
                 onLogoutClick={handleLogoutClick}
                 onBackToOwnersClick={() => setSelectedOwner(null)}
             />
-            {selectedOwner ? (
-                <>
-                    <OwnerContainer owner={selectedOwner} />
-                </>
+            <MyProfile open={showProfile} onClose={() => setShowProfile(false)} />
+            {
+                selectedOwner ? (
+                    <>
+                        <OwnerContainer owner={selectedOwner} />
+                    </>
 
-            ) : (
-                <>
-                    {loading ? (
-                        <Typography>Loading...</Typography>
-                    ) : (
-                        <OwnerList
-                            owners={owners}
-                            onEdit={handleEditOwner}
-                            onDelete={handleDeleteOwner}
-                            onViewProjects={handleViewProjects}
-                        />
-                    )}
-                </>
-            )}
+                ) : (
+                    <>
+                        {loading ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><CircularProgress /></Box>
+                        ) : (
+                            <OwnerList
+                                owners={owners}
+                                onAddOrEdit={handleAddOrEditOwner}
+                                onDelete={handleDeleteOwner}
+                                onViewProjects={handleViewProjects}
+                            />
+                        )}
+                    </>
+                )})
             <Notification
                 open={notification.open}
                 message={notification.message}

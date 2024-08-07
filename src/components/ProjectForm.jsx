@@ -65,7 +65,7 @@ const ProjectForm = ({ owner_id, project = null }) => {
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
             <Typography variant="h5" gutterBottom>
                 {project ? 'Edit Project' : 'Create Project'}
             </Typography>
@@ -87,7 +87,7 @@ const ProjectForm = ({ owner_id, project = null }) => {
                 multiline
                 rows={4}
             />
-            <FormControl fullWidth margin="normal" required>
+            <FormControl required sx={{ width: '40%' }}>
                 <InputLabel>Status</InputLabel>
                 <Select value={status || ''} label="Status" onChange={(e) => setStatus(e.target.value)}>
                     <MenuItem value="not_started">Not Started</MenuItem>

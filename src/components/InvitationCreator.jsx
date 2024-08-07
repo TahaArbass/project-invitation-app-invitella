@@ -5,9 +5,10 @@ import TextInputForm from './TextInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
 import IconInputForm from './IconInputForm';
 import RenderJSON from './RenderJSON';
-import { storage } from '../firebase/firebaseConfig'; // Import Firebase storage
+import { signInAnon, storage } from '../firebase/firebaseConfig'; // Import Firebase storage
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'; // Firebase Storage imports
 import baseURL from '../apiConfig';
+import { useProject } from './OwnerContainer';
 
 const InvitationCreator = () => {
     const [elements, setElements] = useState([]);
@@ -18,6 +19,7 @@ const InvitationCreator = () => {
     const [backgroundFile, setBackgroundFile] = useState(null); // State for storing the selected background file
     const [uploadProgress, setUploadProgress] = useState(0); // State for tracking upload progress
     const [editingIndex, setEditingIndex] = useState(null);
+    const { selectedProject } = useProject();
 
     const handleAddText = (jsonObject, index) => {
         if (index !== null) {
@@ -74,15 +76,16 @@ const InvitationCreator = () => {
             let backgroundURL = null;
 
             if (backgroundFile) {
+                // Upload background file to Firebase Storage
+                await signInAnon(); // Sign in anonymously to Firebase
                 backgroundURL = await uploadFile(backgroundFile);
             }
-
             const submissionData = {
                 page_data: backgroundURL ?
                     [...elements, { type: 'background', url: backgroundURL }] :
                     elements,
                 priority: 5,
-                project_id: 11
+                project_id: selectedProject.id,
             };
 
             await submitPage(submissionData);
@@ -103,7 +106,6 @@ const InvitationCreator = () => {
         const fileName = `${Date.now()}_${file.name}`;
         const storageRef = ref(storage, `backgrounds/${fileName}`);
         const uploadTask = uploadBytesResumable(storageRef, file);
-
         return new Promise((resolve, reject) => {
             uploadTask.on(
                 'state_changed',
@@ -125,11 +127,13 @@ const InvitationCreator = () => {
         });
     };
 
+
+    // Submit page data to the server
     const submitPage = async (data) => {
         const response = await fetch(`${baseURL}/api/pages`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify(data)
         });
@@ -139,6 +143,7 @@ const InvitationCreator = () => {
         }
 
         setElements([]); // Clear elements after successful submission
+        setUploadProgress(0); // Reset upload progress
         return response.json();
     };
 

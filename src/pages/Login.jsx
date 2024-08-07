@@ -7,6 +7,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import baseURL from '../apiConfig';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Notification from '../components/Notification';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +16,7 @@ const Login = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     var { currentUser, setCurrentUser } = useAuth();
+    const [notification, setNotification] = useState({ open: false, message: '' });
 
     const handleClickShowPassword = () => setShowPassword(!showPassword);
     const handleMouseDownPassword = (event) => event.preventDefault();
@@ -64,7 +66,7 @@ const Login = () => {
             navigate('/' + currentUser.dbUser.role + '/home');
 
         } catch (error) {
-            console.error('Login error:', error.response?.data || error.message);
+            setNotification({ open: true, message: 'Please check your email and password.' + error.response?.data?.error });
         }
     }
 
@@ -134,6 +136,11 @@ const Login = () => {
                     </Link>
                 </Typography>
             </Form>
+            <Notification
+                open={notification.open}
+                message={notification.message}
+                onClose={() => setNotification({ open: false, message: '' })}
+            />
         </Container>
     );
 };

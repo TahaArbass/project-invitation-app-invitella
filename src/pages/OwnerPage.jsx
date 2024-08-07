@@ -6,15 +6,17 @@ import OwnerContainer from '../components/OwnerContainer';
 import Notification from '../components/Notification';
 import { getAuth, signOut } from 'firebase/auth';
 import { Box } from '@mui/material';
+import MyProfile from '../components/MyProfile';
 
 const OwnerPage = () => {
     const { currentUser, setCurrentUser, setIsLoggedIn } = useAuth();
     const [notification, setNotification] = useState({ open: false, message: '' });
     const navigate = useNavigate();
     const auth = getAuth(); // Initialize the Firebase Auth instance
+    const [showProfile, setShowProfile] = useState(false);
 
     const handleProfileClick = () => {
-        setNotification({ open: true, message: 'Profile clicked' });
+        setShowProfile(true);
     };
 
     const handleLogoutClick = () => {
@@ -42,6 +44,7 @@ const OwnerPage = () => {
                 onProfileClick={handleProfileClick}
                 onLogoutClick={handleLogoutClick}
             />
+            <MyProfile open={showProfile} onClose={() => setShowProfile(false)} />
             <OwnerContainer owner={currentUser.dbUser} />
             <Notification open={notification.open} message={notification.message} onClose={handleNotificationClose} />
         </Box>

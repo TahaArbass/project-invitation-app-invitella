@@ -46,8 +46,7 @@ const UploadMedia = () => {
                 // Fetch guest tables associated with the project
                 const guests = await axios.get(`${baseURL}/api/guests/project/${projectResponse.data.id}`);
                 setProject_id(projectResponse.data.id);
-                console.log('Project ID:', projectResponse.data.id);
-                console.log('Guests:', guests.data);
+
                 // Update state with fetched data
                 setGuests(guests.data);
                 setLoading(false);
@@ -102,12 +101,11 @@ const UploadMedia = () => {
                 });
 
                 // Send upload request to backend
-                const uploadResponse = await axios.post(`${baseURL}/api/photos/upload/${selectedGuest.id}/${project_id}`, formData, {
+                await axios.post(`${baseURL}/api/photos/upload/${selectedGuest.id}/${project_id}`, formData, {
                     headers: {
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
                     }
                 });
-                console.log('Files uploaded successfully:', uploadResponse.data);
 
                 setFiles([]);
                 setUploadComponentVisible(false); // Hide upload component after successful upload

@@ -10,7 +10,7 @@ import InvitationPage from './pages/InvitationPage';
 import ForgotPassword from './pages/ForgotPassword';
 import Root from './pages/Root';
 import DemoUserPage from './pages/DemoUserPage';
-import ProjectManager from './pages/DemoPage';
+import TableSelector from './pages/DemoPage';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './utils/protectedRoute';
 import UnauthenticatedRoute from './utils/UnauthenticatedRoute';
@@ -63,7 +63,7 @@ function App() {
             <Route path="/guest-search/:projectName" element={<GuestSearch />} />
             <Route path="/upload/:projectName" element={<UploadMedia />} />
             <Route path="/invitation/:projectName" element={<InvitationPage />} />
-            <Route path="/demo" element={<DemoUserPage />} />
+            <Route path="/demo" element={<TableSelector ownerId={30} guestId={1} />} />
 
             {/* Protected routes */}
             <Route element={<ProtectedRoute />}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, InputAdornment, IconButton } from '@mui/material';
+import { Box, Button, TextField, InputAdornment, IconButton } from '@mui/material';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -10,7 +10,7 @@ const OwnerForm = ({ onSubmit, owner, isEditing }) => {
         last_name: owner?.last_name || '',
         email: owner?.email || '',
         telephone: owner?.telephone || '',
-        password: '', // Add password field
+        password: '',
     });
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
@@ -39,10 +39,13 @@ const OwnerForm = ({ onSubmit, owner, isEditing }) => {
         } else if (!/^\+?\d{8,20}$/.test(formState.telephone)) {
             tempErrors.telephone = "Telephone must be between 8 and 20 digits and can start with a +";
         }
-        if (!isEditing && !formState.password) {
-            tempErrors.password = "Password is required";
-        } else if (formState.password.length < 6) {
-            tempErrors.password = "Password must be at least 6 characters long";
+
+        if (!isEditing) {
+            if (!formState.password) {
+                tempErrors.password = "Password is required";
+            } else if (formState.password.length < 6) {
+                tempErrors.password = "Password must be at least 6 characters long";
+            }
         }
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
@@ -52,25 +55,42 @@ const OwnerForm = ({ onSubmit, owner, isEditing }) => {
         event.preventDefault();
         if (validate()) {
             onSubmit(formState);
+            setFormState({
+                username: '',
+                first_name: '',
+                last_name: '',
+                email: '',
+                telephone: '',
+                password: '',
+            });
         }
     };
 
     return (
         <Box component="form" onSubmit={handleSubmit} noValidate>
-            <Typography variant="h6" gutterBottom>
-                {isEditing ? 'Edit Owner' : 'Add Owner'}
-            </Typography>
-            <TextField
-                label="Username"
-                name="username"
-                value={formState.username}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-                required
-                error={!!errors.username}
-                helperText={errors.username}
-            />
+            {isEditing ? (
+                <TextField
+                    label="Username (Read Only)"
+                    name="username"
+                    value={formState.username}
+                    fullWidth
+                    margin="normal"
+                    InputProps={{
+                        readOnly: true,
+                    }}></TextField>
+
+            ) : (
+                <TextField
+                    label="Username"
+                    name="username"
+                    value={formState.username}
+                    onChange={handleChange}
+                    fullWidth
+                    margin="normal"
+                    required
+                    error={!!errors.username}
+                    helperText={errors.username}
+                />)}
             <TextField
                 label="First Name"
                 name="first_name"
@@ -96,7 +116,7 @@ const OwnerForm = ({ onSubmit, owner, isEditing }) => {
             {/* if we are editing, the Email field is read-only */}
             {isEditing ? (
                 <TextField
-                    label="Email (read-only)"
+                    label="Email (Read Only)"
                     name="email"
                     value={formState.email}
                     fullWidth

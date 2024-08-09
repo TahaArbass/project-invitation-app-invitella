@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
-import { useProject } from '../OwnerContainer';
+// import { useProject } from '../OwnerContainer';
 
 const GuestForm = ({ onSubmit, guest, isEditing }) => {
-    const { selectedProject } = useProject();
+
+    // const { selectedProject } = useProject();
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',

@@ -1,18 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
-    Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography
+    Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
-import OwnerForm from '../Forms/OwnerForm'; // Create this form similar to GuestForm
+import axios from 'axios';
+import baseURL from '../../apiConfig';
+import OwnerForm from '../Forms/OwnerForm';
 import Notification from '../Notification';
+import ConfirmAction from '../utils/ConfirmAction';
+import { useAuth } from '../../context/AuthContext';
 
-const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
+const OwnerList = ({ onViewProjects }) => {
+    const [owners, setOwners] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [editingOwner, setEditingOwner] = useState(null);
     const [isFormVisible, setIsFormVisible] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState({ open: false, message: '' });
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [deleteOwnerId, setDeleteOwnerId] = useState(null);
+    const { currentUser } = useAuth();
+
+    useEffect(() => {
+        const fetchOwners = async () => {
+            setLoading(true);
+            try {
+                const response = await axios.get(`${baseURL}/api/admins/admin/${currentUser.dbUser.id}`);
+                const ownerIds = response.data.map((link) => link.owner_id);
+                const ownersRes = await Promise.all(ownerIds.map((id) => axios.get(`${baseURL}/api/users/${id}`)));
+                setOwners(ownersRes.map((res) => res.data));
+            } catch (error) {
+                console.error('Error fetching owners:', error);
+                setNotification({ open: true, message: 'Failed to fetch owners' });
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOwners();
+    }, [currentUser.dbUser.id]);
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -23,13 +51,27 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
         setPage(0);
     };
 
-    const handleAddOrEditOwner = (owner) => {
+    const toggleFormVisibility = () => {
+        setIsFormVisible(!isFormVisible);
+        setEditingOwner(null);
+    };
+
+    const handleAddOrEdit = async (owner) => {
         try {
-            onAddOrEdit(owner);
-            setNotification({ open: true, message: 'Owner saved successfully' });
+            if (editingOwner) {
+                await axios.put(`${baseURL}/api/users/${editingOwner.id}`, owner);
+                setOwners(owners.map((o) => (o.id === editingOwner.id ? { ...o, ...owner } : o)));
+                setNotification({ open: true, message: 'Owner edited successfully' });
+            } else {
+                const response = await axios.post(`${baseURL}/api/users/signup`, owner); // Use signup endpoint
+                await axios.post(`${baseURL}/api/admins`, { owner_id: response.data.dbUser.id, admin_id: currentUser.dbUser.id }); // Add owner to admin
+                setOwners([...owners, response.data.dbUser]);
+                setNotification({ open: true, message: `Owner added successfully: ${response.data.dbUser.username}` });
+            }
         } catch (error) {
-            setNotification({ open: true, message: 'Failed to save owner' });
+            setNotification({ open: true, message: `Failed to process owner: ${error.response.data.error}` });
         } finally {
+            // first set the form visibility to false then after it is closed, set the editing owner to null
             setIsFormVisible(false);
             setEditingOwner(null);
         }
@@ -40,10 +82,32 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
         setIsFormVisible(true);
     };
 
-    const toggleFormVisibility = () => {
-        setIsFormVisible(!isFormVisible);
-        setEditingOwner(null);
+    const handleDelete = (ownerId) => {
+        setIsConfirmOpen(true);
+        setDeleteOwnerId(ownerId);
     };
+
+    const confirmDeleteOwner = async () => {
+        try {
+            await axios.delete(`${baseURL}/api/users/${deleteOwnerId}`);
+            setOwners(owners.filter(owner => owner.id !== deleteOwnerId));
+            setNotification({ open: true, message: 'Owner deleted successfully' });
+        } catch (error) {
+            console.error('Error deleting owner:', error);
+            setNotification({ open: true, message: 'Failed to delete owner' });
+        } finally {
+            setIsConfirmOpen(false);
+            setDeleteOwnerId(null);
+        }
+    };
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ padding: 2 }}>
@@ -59,10 +123,10 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
             <Dialog open={isFormVisible} onClose={toggleFormVisibility}>
                 <DialogTitle>{editingOwner ? 'Edit Owner' : 'Add Owner'}</DialogTitle>
                 <DialogContent>
-                    <OwnerForm onSubmit={handleAddOrEditOwner} owner={editingOwner} isEditing={Boolean(editingOwner)} />
+                    <OwnerForm onSubmit={handleAddOrEdit} owner={editingOwner} isEditing={Boolean(editingOwner)} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={toggleFormVisibility} color="primary">
+                    <Button onClick={toggleFormVisibility} color="secondary">
                         Cancel
                     </Button>
                 </DialogActions>
@@ -98,16 +162,13 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
                                     <TableCell>{owner.telephone}</TableCell>
                                     <TableCell>
                                         <Box display="flex" gap={1}>
-                                            <IconButton onClick={() => handleEditClick(owner)} sx={{ '&:hover': { color: 'blue' } }}>
+                                            <IconButton onClick={() => { handleEditClick(owner) }} sx={{ '&:hover': { color: 'blue' } }}>
                                                 <Edit />
                                             </IconButton>
-                                            <IconButton color='warning' onClick={() => onDelete(owner.id)} sx={{ '&:hover': { color: 'red' } }}>
+                                            <IconButton color='warning' onClick={() => handleDelete(owner.id)} sx={{ '&:hover': { color: 'red' } }}>
                                                 <Delete />
                                             </IconButton>
-                                            <Button color='secondary' onClick={() => onViewProjects(owner)}
-                                                sx={{ borderRadius: 4 }}>
-                                                View Projects
-                                            </Button>
+                                            <Button color='secondary' onClick={() => onViewProjects(owner)}>View Projects</Button>
                                         </Box>
                                     </TableCell>
                                 </TableRow>
@@ -124,6 +185,13 @@ const OwnerList = ({ owners, onAddOrEdit, onDelete, onViewProjects }) => {
                 page={page}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            <ConfirmAction
+                open={isConfirmOpen}
+                onClose={() => setIsConfirmOpen(false)}
+                onConfirm={confirmDeleteOwner}
+                title="Confirm Delete"
+                content="Are you sure you want to delete this owner? This action cannot be undone."
             />
             <Notification
                 open={notification.open}

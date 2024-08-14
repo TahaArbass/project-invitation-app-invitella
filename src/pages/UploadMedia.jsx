@@ -14,6 +14,7 @@ import {
     Grid,
     Snackbar,
     Alert,
+    Backdrop,
 } from '@mui/material';
 import { Background, Container, StyledAutocomplete, GuestSearchTypography } from '../styles';
 import baseURL from '../apiConfig';
@@ -34,6 +35,8 @@ const UploadMedia = () => {
     const [selectedFilesCount, setSelectedFilesCount] = useState(0);
     const [project_id, setProject_id] = useState(-1);
 
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploading, setUploading] = useState(false);
 
     const MAX_FILES = 15;
     const MAX_FILE_SIZE_MB = 5;
@@ -99,12 +102,18 @@ const UploadMedia = () => {
                 files.forEach(file => {
                     formData.append('photos', file);
                 });
+                setUploading(true); // Start the upload and show the overlay
 
                 // Send upload request to backend
                 await axios.post(`${baseURL}/api/photos/upload/${selectedGuest.id}/${project_id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                    }
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        const progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+                        console.log('Upload progress:', progress);
+                        setUploadProgress(progress);
+                    },
                 });
 
                 setFiles([]);
@@ -112,6 +121,8 @@ const UploadMedia = () => {
                 setSnackbarMessage('Files uploaded successfully!');
                 setSnackbarOpen(true);
                 setSelectedFilesCount(0); // Reset selected files count
+                setUploadProgress(0); // Reset progress bar
+                setUploading(false); // Hide the overlay
             } catch (error) {
                 console.error('Error uploading files:', error);
                 setSnackbarMessage('Error uploading files. Please try again.');
@@ -262,6 +273,20 @@ const UploadMedia = () => {
                         {snackbarMessage}
                     </Alert>
                 </Snackbar>
+
+                {/* Backdrop Overlay for Uploading Progress */}
+                <Backdrop
+                    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                    open={uploading}
+                >
+                    <Box sx={{ textAlign: 'center' }}>
+                        <CircularProgress variant="determinate" value={uploadProgress} />
+                        <Typography variant="h6" color="inherit" sx={{ marginTop: 2 }}>
+                            Uploading: {uploadProgress}%
+                        </Typography>
+                    </Box>
+                </Backdrop>
+
             </Container>
         </Background>
     );

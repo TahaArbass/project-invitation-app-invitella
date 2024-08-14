@@ -11,11 +11,11 @@ const ConfirmAction = ({ open, onClose, onConfirm, title, content }) => {
                 <DialogContentText>{content}</DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button variant='outlined' onClick={onClose} color="info">
-                    Cancel
-                </Button>
                 <Button variant='outlined' onClick={onConfirm} color="error">
                     Confirm
+                </Button>
+                <Button variant='outlined' onClick={onClose} color="info">
+                    Cancel
                 </Button>
             </DialogActions>
         </Dialog>

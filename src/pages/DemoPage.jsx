@@ -8,31 +8,33 @@ import {
     Autocomplete
 } from '@mui/material';
 import baseURL from '../apiConfig';
+import { useAuth } from '../context/AuthContext';
 
-const TableSelector = () => {
+const TableSelector = ({ onSelectTable }) => {
     const [tables, setTables] = useState([]);
-    const [selectedTable, setSelectedTable] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         const fetchTables = async () => {
             try {
-                // Fetch all tables
-                const response = await axios.get(`${baseURL}/api/tables`);
+                // Fetch all tables owned by the current user
+                const response = await axios.get(`${baseURL}/api/tables/owner/${currentUser.dbUser.id}`);
                 setTables(response.data);
                 setLoading(false);
             } catch (err) {
-                setError('Failed to fetch tables');
+                setError('No tables found');
                 setLoading(false);
             }
         };
 
         fetchTables();
-    }, []);
+    }, [currentUser.dbUser.id]);
 
     const handleTableSelect = (event, value) => {
-        setSelectedTable(value);
+        if (onSelectTable)
+            onSelectTable(value);
     };
 
     if (loading) {
@@ -45,14 +47,14 @@ const TableSelector = () => {
 
     if (error) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '20vh' }}>
                 <Typography variant="h4" color="error">{error}</Typography>
             </Box>
         );
     }
 
     return (
-        <Box>
+        <Box sx={{ p: 1 }}>
             <Autocomplete
                 options={tables}
                 getOptionLabel={(option) => option.label}

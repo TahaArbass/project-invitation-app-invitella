@@ -78,10 +78,11 @@ const UploadedMedia = () => {
                 setNotification({ open: true, message: 'Photo(s) deleted successfully' });
                 setSelectedPhotos([]);
             })
-            .catch(() => {
+            .catch((error) => {
                 setNotification({ open: true, message: 'Failed to delete photo(s)' });
             });
     };
+
 
     const handleDelete = () => {
         setIsConfirmOpen(true);

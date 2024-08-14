@@ -3,7 +3,7 @@ import { Box, Button, TextField, InputAdornment, IconButton } from '@mui/materia
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
-const OwnerForm = ({ onSubmit, owner, isEditing }) => {
+const OwnerForm = ({ onSubmit, owner, isEditing, onCancel }) => {
     const [formState, setFormState] = useState({
         username: owner?.username || '',
         first_name: owner?.first_name || '',
@@ -177,9 +177,14 @@ const OwnerForm = ({ onSubmit, owner, isEditing }) => {
                     }}
                 />
             )}
-            <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-                {isEditing ? 'Update Owner' : 'Add Owner'}
-            </Button>
+            <Box sx={{ mt: 2 }}>
+                <Button type="submit" variant="contained" color="primary">
+                    {isEditing ? 'Update Owner' : 'Add Owner'}
+                </Button>
+                <Button variant="contained" color="secondary" sx={{ ml: 2 }} onClick={onCancel}>
+                    Cancel
+                </Button>
+            </Box>
         </Box>
     );
 };

@@ -7,13 +7,15 @@ import axios from 'axios';
 import baseURL from '../../apiConfig';
 import GuestForm from '../Forms/GuestForm';
 import { useProject } from '../OwnerContainer';
-import { Delete, Edit, Add } from '@mui/icons-material';
+import { Delete, Edit, Add, ChairAlt } from '@mui/icons-material';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
 import TableSelector from '../../pages/DemoPage';
+import { useAuth } from '../../context/AuthContext';
 
 const GuestList = () => {
     const [guests, setGuests] = useState([]);
+    const [tables, setTables] = useState([]);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [editingGuest, setEditingGuest] = useState(null);
@@ -23,7 +25,12 @@ const GuestList = () => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [deleteGuestId, setDeleteGuestId] = useState(null);
 
+    const [selectedGuest, setSelectedGuest] = useState(null);
+    const [selectedTable, setSelectedTable] = useState(null);
+    const [isTableDialogOpen, setIsTableDialogOpen] = useState(false);
+
     const { selectedProject } = useProject();
+    const { currentUser } = useAuth();
 
     useEffect(() => {
         const fetchGuests = async () => {
@@ -32,6 +39,9 @@ const GuestList = () => {
             try {
                 const response = await axios.get(`${baseURL}/api/guests/project/${selectedProject.id}`);
                 setGuests(response.data);
+                // Fetch all tables owned by the current user
+                const tablesResponse = await axios.get(`${baseURL}/api/tables/owner/${currentUser.dbUser.id}`);
+                setTables(tablesResponse.data);
             } catch (error) {
                 console.error('Error fetching guest list:', error);
                 setNotification({ open: true, message: 'Failed to fetch guests' });
@@ -112,6 +122,43 @@ const GuestList = () => {
         }
     };
 
+    const handleTableAssignClick = (guest) => {
+        setSelectedGuest(guest);
+        setIsTableDialogOpen(true);
+    };
+
+    const handleTableAssign = async () => {
+        if (selectedGuest && selectedTable) {
+            try {
+                // Check if the guest already has a table assignment
+                const existingAssignment = await axios.get(`${baseURL}/api/guestTables/${selectedProject.id}/${selectedGuest.id}`);
+                if (existingAssignment.data) {
+                    // Update existing assignment
+                    await axios.put(`${baseURL}/api/guestTables/${existingAssignment.data.id}`, {
+                        table_id: selectedTable.id,
+                        guest_id: selectedGuest.id,
+                        project_id: selectedProject.id
+                    });
+                } else {
+                    // Create new assignment
+                    await axios.post(`${baseURL}/api/guestTables`, {
+                        project_id: selectedProject.id,
+                        guest_id: selectedGuest.id,
+                        table_id: selectedTable.id
+                    });
+                }
+
+                setNotification({ open: true, message: 'Table assigned successfully' });
+                setIsTableDialogOpen(false);
+                setSelectedGuest(null);
+                setSelectedTable(null);
+            } catch (error) {
+                console.error('Error assigning table:', error);
+                setNotification({ open: true, message: 'Failed to assign table' });
+            }
+        }
+    };
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
@@ -134,13 +181,8 @@ const GuestList = () => {
             <Dialog open={isFormVisible} onClose={toggleFormVisibility}>
                 <DialogTitle>{editingGuest ? 'Edit Guest' : 'Add Guest'}</DialogTitle>
                 <DialogContent>
-                    <GuestForm onSubmit={handleAddOrEditGuest} guest={editingGuest} isEditing={Boolean(editingGuest)} />
+                    <GuestForm onSubmit={handleAddOrEditGuest} guest={editingGuest} isEditing={Boolean(editingGuest)} onCancel={toggleFormVisibility} />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={toggleFormVisibility} color="secondary">
-                        Cancel
-                    </Button>
-                </DialogActions>
             </Dialog>
             <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>
@@ -150,64 +192,97 @@ const GuestList = () => {
                             <TableCell><Typography>Last Name</Typography></TableCell>
                             <TableCell><Typography>Telephone</Typography></TableCell>
                             <TableCell><Typography>RSVP Status</Typography></TableCell>
+                            <TableCell><Typography>Table</Typography></TableCell>
                             <TableCell><Typography>Actions</Typography></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {guests.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5}>
+                                <TableCell colSpan={6}>
                                     <Typography variant="body2" color="textSecondary" align="center">
                                         No guests found
                                     </Typography>
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((guest, index) => (
-                                <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
-                                    <TableCell>{guest.first_name}</TableCell>
-                                    <TableCell>{guest.last_name}</TableCell>
-                                    <TableCell>{guest.telephone}</TableCell>
-                                    <TableCell sx={{ ...getRSVPStatusStyles(guest.rsvp_status), width: '15%' }}>
-                                        {guest.rsvp_status}
-                                    </TableCell>
-                                    <TableCell>
-                                        <Box display="flex" gap={1}>
-                                            <IconButton onClick={() => handleEditClick(guest)} sx={{ '&:hover': { color: 'blue' } }}>
+                            guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((guest, index) => {
+                                // Find the table for the current guest
+                                const matchedTable = tables.find(t => t.guest_id === guest.id);
+
+                                return (
+                                    <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
+                                        <TableCell>{guest.first_name}</TableCell>
+                                        <TableCell>{guest.last_name}</TableCell>
+                                        <TableCell>{guest.telephone}</TableCell>
+                                        <TableCell>
+                                            <Box
+                                                sx={{
+                                                    textAlign: 'center',
+                                                    ...getRSVPStatusStyles(guest.rsvp_status),
+                                                    borderRadius: 1,
+                                                    padding: '4px',
+                                                }}
+                                            >
+                                                {guest.rsvp_status}
+                                            </Box>
+                                        </TableCell>
+                                        <TableCell>
+                                            {matchedTable ? matchedTable.label : 'Not Assigned'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <IconButton onClick={() => handleEditClick(guest)} sx={{ '&:hover': { color: 'blue' }, mr: 1 }}>
                                                 <Edit />
                                             </IconButton>
-                                            <IconButton color='warning' onClick={() => handleDeleteClick(guest.id)} sx={{ '&:hover': { color: 'red' } }}>
+                                            <IconButton onClick={() => handleDeleteClick(guest.id)} sx={{ '&:hover': { color: 'red' }, mr: 1 }}>
                                                 <Delete />
                                             </IconButton>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            ))
+                                            <IconButton onClick={() => handleTableAssignClick(guest)} sx={{ '&:hover': { color: 'green' } }}>
+                                                <ChairAlt />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
                         )}
                     </TableBody>
                 </Table>
+                <TablePagination
+                    component="div"
+                    count={guests.length}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    rowsPerPage={rowsPerPage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    rowsPerPageOptions={[5, 10, 25]}
+                />
             </TableContainer>
-            <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                component="div"
-                count={guests.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-            <ConfirmAction
-                open={isConfirmOpen}
-                onClose={() => setIsConfirmOpen(false)}
-                onConfirm={() => confirmDeleteGuest(deleteGuestId)}
-                title="Confirm Delete"
-                content="Are you sure you want to delete this guest? This action cannot be undone."
-            />
             <Notification
                 open={notification.open}
                 message={notification.message}
                 onClose={() => setNotification({ open: false, message: '' })}
             />
+            <ConfirmAction
+                open={isConfirmOpen}
+                title="Confirm Delete"
+                content="Are you sure you want to delete this guest?"
+                onConfirm={() => confirmDeleteGuest(deleteGuestId)}
+                onClose={() => setIsConfirmOpen(false)}
+            />
+            <Dialog open={isTableDialogOpen} onClose={() => setIsTableDialogOpen(false)}>
+                <DialogTitle>Select Table for {selectedGuest?.first_name}</DialogTitle>
+                <DialogContent>
+                    <TableSelector onSelectTable={(table) => setSelectedTable(table)} />
+                </DialogContent>
+                <DialogActions>
+                    <Button variant='contained' onClick={handleTableAssign} color="primary">
+                        Assign
+                    </Button>
+                    <Button variant='contained' onClick={() => setIsTableDialogOpen(false)} color="secondary">
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

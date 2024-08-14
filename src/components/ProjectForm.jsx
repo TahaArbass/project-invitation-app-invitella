@@ -3,7 +3,7 @@ import { Button, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typo
 import { Alert, Snackbar } from '@mui/material';
 import baseURL from '../apiConfig';
 
-const ProjectForm = ({ owner_id, project = null }) => {
+const ProjectForm = ({ owner_id, project = null, onCancel }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('');
@@ -95,9 +95,12 @@ const ProjectForm = ({ owner_id, project = null }) => {
                     <MenuItem value="completed">Completed</MenuItem>
                 </Select>
             </FormControl>
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 2 }} >
                 <Button type="submit" variant="contained" color="primary">
                     {project ? 'Update Project' : 'Create Project'}
+                </Button>
+                <Button variant="contained" color="secondary" sx={{ ml: 2 }} onClick={onCancel}>
+                    Cancel
                 </Button>
             </Box>
 

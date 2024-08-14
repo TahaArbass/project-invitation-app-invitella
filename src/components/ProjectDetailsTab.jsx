@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Button, Dialog, DialogActions, DialogContent, TextField, Box, Card, CardContent, CardActions } from '@mui/material';
+import { Typography, Button, Dialog, DialogContent, TextField, Box, Card, CardContent, CardActions } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ProjectForm from './ProjectForm';
@@ -28,7 +28,7 @@ const ProjectDetailsTab = () => {
     };
 
     const confirmDeleteProject = () => {
-        axios.delete(`${baseURL}/api/projects/${selectedProject.id}`)
+        axios.put(`${baseURL}/api/projects/deactivate/${selectedProject.id}`)
             .then((response) => {
                 setNotification({ open: true, message: 'Project deleted successfully' });
                 setSelectedProject(null);
@@ -110,13 +110,8 @@ const ProjectDetailsTab = () => {
 
             <Dialog open={isEditing} onClose={handleEditClose}>
                 <DialogContent>
-                    <ProjectForm owner_id={selectedProject?.owner_id} project={selectedProject} />
+                    <ProjectForm owner_id={selectedProject?.owner_id} project={selectedProject} onCancel={handleEditClose} />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleEditClose} color="primary">
-                        Cancel
-                    </Button>
-                </DialogActions>
             </Dialog>
 
             <ConfirmAction
@@ -124,7 +119,7 @@ const ProjectDetailsTab = () => {
                 onClose={() => setIsConfirmOpen(false)}
                 onConfirm={confirmDeleteProject}
                 title="Confirm Deletion"
-                content="Are you sure you want to delete this project? This action cannot be undone."
+                content="Are you sure you want to delete this project? You won't be able to access data related to it anymore."
             />
 
             <Notification

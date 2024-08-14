@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
-    Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
+    Paper, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
 import axios from 'axios';
@@ -123,13 +123,8 @@ const OwnerList = ({ onViewProjects }) => {
             <Dialog open={isFormVisible} onClose={toggleFormVisibility}>
                 <DialogTitle>{editingOwner ? 'Edit Owner' : 'Add Owner'}</DialogTitle>
                 <DialogContent>
-                    <OwnerForm onSubmit={handleAddOrEdit} owner={editingOwner} isEditing={Boolean(editingOwner)} />
+                    <OwnerForm onSubmit={handleAddOrEdit} owner={editingOwner} isEditing={Boolean(editingOwner)} onCancel={toggleFormVisibility} />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={toggleFormVisibility} color="secondary">
-                        Cancel
-                    </Button>
-                </DialogActions>
             </Dialog>
             <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>

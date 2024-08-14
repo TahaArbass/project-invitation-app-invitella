@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
+import { TextField, Button, MenuItem, Select, InputLabel, FormControl, Box } from '@mui/material';
 // import { useProject } from '../OwnerContainer';
 
-const GuestForm = ({ onSubmit, guest, isEditing }) => {
+const GuestForm = ({ onSubmit, guest, isEditing, onCancel }) => {
 
     // const { selectedProject } = useProject();
     const [formData, setFormData] = useState({
@@ -108,10 +108,15 @@ const GuestForm = ({ onSubmit, guest, isEditing }) => {
                     <MenuItem value="declined">Declined</MenuItem>
                 </Select>
             </FormControl>
-            <Button type="submit" variant="contained" color="primary">
-                {isEditing ? 'Update Guest' : 'Add Guest'}
-            </Button>
-        </form>
+            <Box sx={{ mt: 2 }}>
+                <Button type="submit" variant="contained" color="primary">
+                    {isEditing ? 'Update Guest' : 'Add Guest'}
+                </Button>
+                <Button variant="contained" color="secondary" sx={{ ml: 2 }} onClick={onCancel}>
+                    Cancel
+                </Button>
+            </Box>
+        </form >
     );
 };
 

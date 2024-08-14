@@ -1,10 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { Box, Typography, Button, Grid, Card, CardContent, IconButton, CircularProgress, Dialog, DialogContent } from '@mui/material';
+import { Box, Typography, Button, Grid, Card, CardContent, CircularProgress, Dialog, DialogContent } from '@mui/material';
 import OwnerProjects from '../components/OwnerProjects';
 import Notification from '../components/Notification';
 import ProjectForm from '../components/ProjectForm';
 import baseURL from '../apiConfig';
-import { Add, ArrowBack, Close } from '@mui/icons-material';
+import { Add, ArrowBack } from '@mui/icons-material';
 import { BackButton } from '../styles';
 
 const ProjectContext = createContext();
@@ -21,9 +21,9 @@ const OwnerContainer = ({ owner }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Fetch projects here
+        // Fetch activated projects here
         setLoading(true);
-        fetch(`${baseURL}/api/projects/owner/${owner.id}`)
+        fetch(`${baseURL}/api/projects/activated/owner/${owner.id}`)
             .then((response) => response.json())
             .then((data) => {
                 setProjects(data);
@@ -112,10 +112,7 @@ const OwnerContainer = ({ owner }) => {
                 </Box>
                 <Dialog open={showForm} onClose={handleFormClose} fullWidth>
                     <DialogContent>
-                        <IconButton onClick={handleFormClose} sx={{ position: 'absolute', right: 0 }}>
-                            <Close />
-                        </IconButton>
-                        <ProjectForm owner_id={owner.id} onSave={handleSaveProject} />
+                        <ProjectForm owner_id={owner.id} onSave={handleSaveProject} onCancel={handleFormClose} />
                     </DialogContent>
                 </Dialog>
                 <Notification open={notification.open} message={notification.message} onClose={handleNotificationClose} />

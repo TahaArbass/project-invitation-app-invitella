@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Typography, Box, Card, CardContent, Grid, Input, Snackbar, Alert, LinearProgress, IconButton } from '@mui/material';
+import { Button, Typography, Box, Card, CardContent, Grid, Input, Snackbar, Alert, LinearProgress, IconButton, Dialog } from '@mui/material';
 import { TextFields, Link, InsertEmoticon, AddPhotoAlternate, Delete, Edit, Close } from '@mui/icons-material';
 import TextInputForm from './TextInputForm';
 import LinkButtonInputForm from './LinkButtonInputForm';
@@ -166,21 +166,7 @@ const InvitationCreator = () => {
     const renderForm = () => {
         if (formType) {
             return (
-                <Box
-                    sx={{
-                        position: 'fixed',
-                        top: '10%',
-                        left: '50%',
-                        transform: 'translate(-50%, -10%)',
-                        zIndex: 10,
-                        width: '90%',
-                        maxWidth: '500px',
-                        backgroundColor: 'white',
-                        boxShadow: 24,
-                        p: 1,
-                        borderRadius: 2,
-                    }}
-                >
+                <Dialog open={true} onClose={() => { setFormType(null); setEditingIndex(null); }}>
 
                     <IconButton onClick={() => { setFormType(null); setEditingIndex(null); }}
                         sx={{ position: 'absolute', top: 0, right: 0 }}>
@@ -190,7 +176,7 @@ const InvitationCreator = () => {
                     {formType === 'text' && <TextInputForm onGenerateJSON={handleAddText} index={editingIndex} element={elements[editingIndex]} />}
                     {formType === 'linkButton' && <LinkButtonInputForm onGenerateJSON={handleAddLinkButton} index={editingIndex} element={elements[editingIndex]} />}
                     {formType === 'icon' && <IconInputForm onGenerateJSON={handleAddIcon} index={editingIndex} element={elements[editingIndex]} />}
-                </Box>
+                </Dialog>
             );
         }
         return null;

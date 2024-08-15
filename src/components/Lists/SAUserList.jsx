@@ -8,11 +8,12 @@ import { Delete, Edit, Add } from '@mui/icons-material';
 import SAUserForm from '../Forms/SAUserForm';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
+import baseURL from '../../apiConfig';
 
 const roleColors = {
-    admin: 'lightblue',
-    owner: 'lightgreen',
-    superadmin: 'lightcoral',
+    admin: '#8E9DFF',
+    owner: '#D4E157',
+    superadmin: '#FFAB91',
 };
 
 const statusColors = {
@@ -35,7 +36,8 @@ const SAUserList = () => {
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('/api/users');
+                const response = await axios.get(`${baseURL}/api/users`);
+                console.log(response.data);
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -51,10 +53,10 @@ const SAUserList = () => {
         let response;
         try {
             if (editingUser) {
-                response = await axios.put(`/api/users/${editingUser.id}`, user);
+                response = await axios.put(`${baseURL}/api/users/${editingUser.id}`, user);
                 setUsers(users.map(u => (u.id === editingUser.id ? { ...u, ...user } : u)));
             } else {
-                response = await axios.post('/api/users', user);
+                response = await axios.post(`${baseURL}/api/users`, user);
                 setUsers([...users, response.data]);
             }
         } catch (error) {
@@ -79,7 +81,7 @@ const SAUserList = () => {
 
     const confirmDeleteUser = async (userId) => {
         try {
-            await axios.delete(`/api/users/${userId}`);
+            await axios.delete(`${baseURL}/api/users/${userId}`);
             setUsers(users.filter(user => user.id !== userId));
             setNotification({ open: true, message: 'User deleted successfully' });
             setIsConfirmOpen(false);
@@ -158,9 +160,15 @@ const SAUserList = () => {
                                     <TableCell>{user.username}</TableCell>
                                     <TableCell>{user.first_name}</TableCell>
                                     <TableCell>{user.last_name}</TableCell>
-                                    <TableCell sx={{ backgroundColor: roleColors[user.role] }}>{user.role}</TableCell>
-                                    <TableCell sx={{ backgroundColor: statusColors[user.isActivated.toString()] }}>
-                                        {user.isActivated ? 'Active' : 'Inactive'}
+                                    <TableCell>
+                                        <Box sx={{ backgroundColor: roleColors[user.role], p: 1, borderRadius: 1 }}>
+                                            {user.role}
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell >
+                                        <Box sx={{ backgroundColor: statusColors[user.isActivated.toString()], p: 1, borderRadius: 1 }}>
+                                            {user.isActivated ? 'Active' : 'Inactive'}
+                                        </Box>
                                     </TableCell>
                                     <TableCell>
                                         <IconButton onClick={() => handleEditClick(user)} sx={{ '&:hover': { color: 'blue' }, mr: 1 }}>

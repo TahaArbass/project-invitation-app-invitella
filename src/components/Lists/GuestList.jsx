@@ -11,11 +11,11 @@ import { Delete, Edit, Add, ChairAlt } from '@mui/icons-material';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
 import TableSelector from '../../pages/DemoPage';
-import { useAuth } from '../../context/AuthContext';
-
 const GuestList = () => {
     const [guests, setGuests] = useState([]);
     const [tables, setTables] = useState([]);
+    const [guestTables, setGuestTables] = useState([]);
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [editingGuest, setEditingGuest] = useState(null);
@@ -30,18 +30,21 @@ const GuestList = () => {
     const [isTableDialogOpen, setIsTableDialogOpen] = useState(false);
 
     const { selectedProject } = useProject();
-    const { currentUser } = useAuth();
-
     useEffect(() => {
         const fetchGuests = async () => {
             if (!selectedProject?.id) return;
             setLoading(true);
             try {
+                // Fetch all guests for the selected project
                 const response = await axios.get(`${baseURL}/api/guests/project/${selectedProject.id}`);
                 setGuests(response.data);
                 // Fetch all tables owned by the current user
-                const tablesResponse = await axios.get(`${baseURL}/api/tables/owner/${currentUser.dbUser.id}`);
+                const tablesResponse = await axios.get(`${baseURL}/api/tables/project/${selectedProject.id}`);
                 setTables(tablesResponse.data);
+
+                // fetch tableGuests
+                const guestTablesResponse = await axios.get(`${baseURL}/api/guestTables/project/${selectedProject.id}`);
+                setGuestTables(guestTablesResponse.data);
             } catch (error) {
                 console.error('Error fetching guest list:', error);
                 setNotification({ open: true, message: 'Failed to fetch guests' });
@@ -67,6 +70,7 @@ const GuestList = () => {
             console.error('Error saving guest:', error);
             setNotification({ open: true, message: 'Failed to save guest' });
         } finally {
+            setNotification({ open: true, message: 'Guest saved successfully' });
             setIsFormVisible(false);
             setEditingGuest(null);
         }
@@ -139,13 +143,19 @@ const GuestList = () => {
                         guest_id: selectedGuest.id,
                         project_id: selectedProject.id
                     });
+
+                    // update the guestTables state
+                    setGuestTables(guestTables.map(gt => (gt.id === existingAssignment.data.id ? { ...gt, table_id: selectedTable.id } : gt)));
                 } else {
                     // Create new assignment
-                    await axios.post(`${baseURL}/api/guestTables`, {
+                    let response = await axios.post(`${baseURL}/api/guestTables`, {
                         project_id: selectedProject.id,
                         guest_id: selectedGuest.id,
                         table_id: selectedTable.id
                     });
+
+                    // update the guestTables state
+                    setGuestTables([...guestTables, response.data]);
                 }
 
                 setNotification({ open: true, message: 'Table assigned successfully' });
@@ -188,12 +198,12 @@ const GuestList = () => {
                 <Table>
                     <TableHead sx={{ backgroundColor: 'bisque' }}>
                         <TableRow>
-                            <TableCell><Typography>First Name</Typography></TableCell>
-                            <TableCell><Typography>Last Name</Typography></TableCell>
-                            <TableCell><Typography>Telephone</Typography></TableCell>
-                            <TableCell><Typography>RSVP Status</Typography></TableCell>
-                            <TableCell><Typography>Table</Typography></TableCell>
-                            <TableCell><Typography>Actions</Typography></TableCell>
+                            <TableCell sx={{ width: '18%' }}><Typography noWrap>First Name</Typography></TableCell>
+                            <TableCell sx={{ width: '18%' }}><Typography noWrap>Last Name</Typography></TableCell>
+                            <TableCell sx={{ width: '12%' }}><Typography noWrap>Telephone</Typography></TableCell>
+                            <TableCell sx={{ width: '12%' }}><Typography noWrap>RSVP Status</Typography></TableCell>
+                            <TableCell sx={{ width: '12%' }}><Typography noWrap> Table</Typography></TableCell>
+                            <TableCell sx={{ width: '10%' }}><Typography noWrap>Actions</Typography></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -208,8 +218,13 @@ const GuestList = () => {
                         ) : (
                             guests.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((guest, index) => {
                                 // Find the table for the current guest
-                                const matchedTable = tables.find(t => t.guest_id === guest.id);
+                                const matchedTable = guestTables.find(gt => gt.guest_id === guest.id);
+                                let assignedTable = null;
+                                if (matchedTable) {
+                                    assignedTable = tables.find(t => t.id === matchedTable.table_id);
+                                }
 
+                                // Render the guest row
                                 return (
                                     <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
                                         <TableCell>{guest.first_name}</TableCell>
@@ -228,7 +243,7 @@ const GuestList = () => {
                                             </Box>
                                         </TableCell>
                                         <TableCell>
-                                            {matchedTable ? matchedTable.label : 'Not Assigned'}
+                                            {assignedTable ? assignedTable.label : 'Not Assigned'}
                                         </TableCell>
                                         <TableCell>
                                             <IconButton onClick={() => handleEditClick(guest)} sx={{ '&:hover': { color: 'blue' }, mr: 1 }}>

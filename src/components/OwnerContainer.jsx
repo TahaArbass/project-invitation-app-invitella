@@ -56,6 +56,8 @@ const OwnerContainer = ({ owner }) => {
             // Add new project
             setProjects([...projects, project]);
         }
+        handleFormClose();
+        setNotification({ open: true, message: 'Project saved successfully.' });
     };
 
     const handleNotificationClose = () => {

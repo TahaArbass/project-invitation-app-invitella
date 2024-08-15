@@ -5,7 +5,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 
-const CommonAppBar = ({ userRole, onProfileClick, onLogoutClick, onBackToOwnersClick }) => {
+const CommonAppBar = ({ userRole, onProfileClick, onLogoutClick, onContactUsClick, onBackToOwnersClick }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -52,7 +52,12 @@ const CommonAppBar = ({ userRole, onProfileClick, onLogoutClick, onBackToOwnersC
                             onClose={handleClose}
                         >
                             <MenuItem onClick={onProfileClick}>My Profile</MenuItem>
-                            <MenuItem onClick={onLogoutClick}>Log Out</MenuItem>
+                            <MenuItem onClick={onContactUsClick}>Contact Us</MenuItem>
+                            <MenuItem onClick={onLogoutClick}>
+                                <Typography color={'error'}>
+                                    Log Out
+                                </Typography>
+                            </MenuItem>
                         </Menu>
                     </div>
                 </Toolbar>

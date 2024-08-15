@@ -130,12 +130,12 @@ const OwnerList = ({ onViewProjects }) => {
                 <Table>
                     <TableHead sx={{ backgroundColor: 'bisque' }}>
                         <TableRow>
-                            <TableCell><Typography>Username</Typography></TableCell>
-                            <TableCell><Typography>First Name</Typography></TableCell>
-                            <TableCell><Typography>Last Name</Typography></TableCell>
-                            <TableCell><Typography>Email</Typography></TableCell>
-                            <TableCell><Typography>Telephone</Typography></TableCell>
-                            <TableCell><Typography>Actions</Typography></TableCell>
+                            <TableCell sx={{ width: '15%' }}><Typography noWrap>Username</Typography></TableCell>
+                            <TableCell sx={{ width: '18%' }}><Typography noWrap>First Name</Typography></TableCell>
+                            <TableCell sx={{ width: '18%' }}><Typography noWrap>Last Name</Typography></TableCell>
+                            <TableCell sx={{ width: '15%' }}><Typography noWrap>Email</Typography></TableCell>
+                            <TableCell sx={{ width: '15%' }}><Typography noWrap>Telephone</Typography></TableCell>
+                            <TableCell sx={{ width: '19%' }}><Typography noWrap>Actions</Typography></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

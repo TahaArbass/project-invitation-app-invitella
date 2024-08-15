@@ -9,18 +9,21 @@ import {
 } from '@mui/material';
 import baseURL from '../apiConfig';
 import { useAuth } from '../context/AuthContext';
+import { useProject } from '../components/OwnerContainer';
 
 const TableSelector = ({ onSelectTable }) => {
     const [tables, setTables] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { currentUser } = useAuth();
+    const { selectedProject } = useProject();
+
 
     useEffect(() => {
         const fetchTables = async () => {
             try {
                 // Fetch all tables owned by the current user
-                const response = await axios.get(`${baseURL}/api/tables/owner/${currentUser.dbUser.id}`);
+                const response = await axios.get(`${baseURL}/api/tables/project/${selectedProject.id}`);
                 setTables(response.data);
                 setLoading(false);
             } catch (err) {
@@ -48,7 +51,7 @@ const TableSelector = ({ onSelectTable }) => {
     if (error) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '20vh' }}>
-                <Typography variant="h4" color="error">{error}</Typography>
+                <Typography variant="h5" color="error">{error}</Typography>
             </Box>
         );
     }

@@ -4,7 +4,8 @@ import InvitationCreator from './InvitationCreator';
 import Guests from './GuestsComponent';
 import UploadedMedia from './UploadedMedia';
 import ProjectDetailsTab from './ProjectDetailsTab';
-import { Email, People, PhotoLibrary, Info } from '@mui/icons-material';
+import { Email, People, PhotoLibrary, Info, TableRestaurant } from '@mui/icons-material';
+import TableList from './Lists/TableList';
 
 const ProjectDetails = () => {
     const [tabIndex, setTabIndex] = useState(0);
@@ -28,6 +29,7 @@ const ProjectDetails = () => {
                 >
                     <Tab icon={<Email />} label="Invitation" />
                     <Tab icon={<People />} label="Guests" />
+                    <Tab icon={<TableRestaurant />} label="Tables" />
                     <Tab icon={<PhotoLibrary />} label="Uploaded Media" />
                     <Tab icon={<Info />} label="Details" />
                 </Tabs>
@@ -39,9 +41,12 @@ const ProjectDetails = () => {
                 <Guests />
             </TabPanel>
             <TabPanel value={tabIndex} index={2}>
-                <UploadedMedia />
+                <TableList />
             </TabPanel>
             <TabPanel value={tabIndex} index={3}>
+                <UploadedMedia />
+            </TabPanel>
+            <TabPanel value={tabIndex} index={4}>
                 <ProjectDetailsTab />
             </TabPanel>
         </>

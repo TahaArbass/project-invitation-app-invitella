@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import CommonAppBar from '../components/CommonAppBar';
 import Notification from '../components/Notification';
-import OwnerList from '../components/Lists/OwnerList';
+import SAUserList from '../components/Lists/SAUserList';
 import { signOut, getAuth } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import MyProfile from '../components/MyProfile';
-import OwnerContainer from '../components/OwnerContainer';
-import ContactUs from '../components/utils/ContactUs'
+import ContactUs from '../components/utils/ContactUs';
 import { Dialog, DialogContent } from '@mui/material';
 import ConfirmAction from '../components/utils/ConfirmAction';
 
-const AdminPage = () => {
-    const [selectedOwner, setSelectedOwner] = useState(null);
+const SuperAdminPage = () => {
     const [notification, setNotification] = useState({ open: false, message: '' });
     const auth = getAuth(); // Initialize the Firebase Auth instance
     const { setCurrentUser, setIsLoggedIn } = useAuth();
@@ -41,13 +39,8 @@ const AdminPage = () => {
         }
     };
 
-
     const handleNotificationClose = () => {
         setNotification({ open: false, message: '' });
-    };
-
-    const handleViewProjects = (owner) => {
-        setSelectedOwner(owner);
     };
 
     const handleContactUsClick = () => {
@@ -57,11 +50,10 @@ const AdminPage = () => {
     return (
         <>
             <CommonAppBar
-                userRole="admin"
+                userRole="super admin"
                 onProfileClick={handleProfileClick}
                 onContactUsClick={handleContactUsClick}
                 onLogoutClick={handleLogoutClick}
-                onBackToOwnersClick={() => setSelectedOwner(null)}
             />
             <MyProfile open={showProfile} onClose={() => setShowProfile(false)} />
             <Dialog open={showContactUs} onClose={() => setShowContactUs(false)}>
@@ -69,15 +61,7 @@ const AdminPage = () => {
                     <ContactUs />
                 </DialogContent>
             </Dialog>
-            {
-                selectedOwner ? (
-                    <OwnerContainer owner={selectedOwner} />
-                ) : (
-                    <>
-                        <OwnerList onViewProjects={handleViewProjects} />
-                    </>
-                )
-            }
+            <SAUserList />
             <ConfirmAction
                 open={showConfirm}
                 title="Log Out"
@@ -85,7 +69,6 @@ const AdminPage = () => {
                 onConfirm={confirmLogOut}
                 onClose={() => setShowConfirm(false)}
             />
-
             <Notification
                 open={notification.open}
                 message={notification.message}
@@ -95,4 +78,4 @@ const AdminPage = () => {
     );
 };
 
-export default AdminPage;
+export default SuperAdminPage;

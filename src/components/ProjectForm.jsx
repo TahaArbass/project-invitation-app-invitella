@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typography } from '@mui/material';
-import { Alert, Snackbar } from '@mui/material';
 import baseURL from '../apiConfig';
+import Notification from './Notification';
 
 const ProjectForm = ({ owner_id, project = null, onCancel }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('');
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [notification, setNotification] = useState({ open: false, message: '' });
 
     useEffect(() => {
         if (project) {
@@ -51,16 +49,17 @@ const ProjectForm = ({ owner_id, project = null, onCancel }) => {
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
+            } else {
+                setNotification({ open: true, message: 'Project saved successfully.' });
             }
 
-            setSnackbarMessage('Project saved successfully!');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
         } catch (error) {
-            console.error('Error:', error);
-            setSnackbarMessage('Failed to save project. Please try again.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
+            setNotification({ open: true, message: 'Failed to save project.' });
+        } finally {
+            // wait for 2 seconds before closing the form
+            setTimeout(() => {
+                onCancel();
+            }, 1200);
         }
     };
 
@@ -103,17 +102,11 @@ const ProjectForm = ({ owner_id, project = null, onCancel }) => {
                     Cancel
                 </Button>
             </Box>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={() => setSnackbarOpen(false)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
+            <Notification
+                open={notification.open}
+                message={notification.message}
+                onClose={() => setNotification({ open: false, message: '' })}
+            />
         </Box>
     );
 };

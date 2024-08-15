@@ -17,15 +17,20 @@ const InvitationPage = () => {
     const [bgUrl, setBgUrl] = useState('');
     const [elements, setElements] = useState([]);
     const [loading, setLoading] = useState(true);
-
+    const [user, setUser] = useState(null);
 
 
     useEffect(() => {
-        // Fetch project and pages data
+        // Fetch project and pages data, also ge the user data
         const fetchPages = async () => {
             try {
                 const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
                 if (projectResponse.data && projectResponse.data.id) {
+                    // get the user data
+                    const userResponse = await axios.get(`${baseURL}/api/users/${projectResponse.data.owner_id}`);
+                    setUser(userResponse.data);
+
+                    // get the pages data
                     const pagesResponse = await axios.get(`${baseURL}/api/pages/project/${projectResponse.data.id}`);
                     if (pagesResponse.data && pagesResponse.data.length > 0) {
                         const firstPage = pagesResponse.data[0];
@@ -47,6 +52,7 @@ const InvitationPage = () => {
                 setLoading(false);
             }
         };
+
         fetchPages();
     }, [projectName]);
 
@@ -59,6 +65,22 @@ const InvitationPage = () => {
             setBgUrl(currentBgUrl);
         }
     }, [currentSlide, elements]);
+
+    // if user is not activated, we don't show the invitation
+    if (user && !user.activated) {
+        return (
+            <Container>
+                <Card sx={{ padding: '20px', margin: '20px', borderRadius: '20px' }}>
+                    <CardContent>
+                        <Typography variant="h6">
+                            Invitation is not available. User Account is not activated.
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Container>
+        );
+    }
+
 
     return (
         <Background image_url={bgUrl}>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
     Typography,
     Box,
@@ -7,9 +6,9 @@ import {
     CircularProgress,
     Autocomplete
 } from '@mui/material';
-import baseURL from '../apiConfig';
 import { useAuth } from '../context/AuthContext';
 import { useProject } from '../components/OwnerContainer';
+import api from '../utils/api';
 
 const TableSelector = ({ onSelectTable }) => {
     const [tables, setTables] = useState([]);
@@ -23,7 +22,7 @@ const TableSelector = ({ onSelectTable }) => {
         const fetchTables = async () => {
             try {
                 // Fetch all tables owned by the current user
-                const response = await axios.get(`${baseURL}/api/tables/project/${selectedProject.id}`);
+                const response = await api.get(`/api/tables/project/${selectedProject.id}`);
                 setTables(response.data);
                 setLoading(false);
             } catch (err) {

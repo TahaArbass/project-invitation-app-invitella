@@ -6,6 +6,8 @@ import UploadedMedia from './UploadedMedia';
 import ProjectDetailsTab from './ProjectDetailsTab';
 import { Email, People, PhotoLibrary, Info, TableRestaurant } from '@mui/icons-material';
 import TableList from './Lists/TableList';
+import InvitationPagesGrid from './InviationPagesGrid';
+import ManageInvitation from './ManageInvitation';
 
 const ProjectDetails = () => {
     const [tabIndex, setTabIndex] = useState(0);
@@ -35,7 +37,9 @@ const ProjectDetails = () => {
                 </Tabs>
             </Box>
             <TabPanel value={tabIndex} index={0}>
-                <InvitationCreator />
+                {/* <InvitationPagesGrid />
+                <InvitationCreator /> */}
+                <ManageInvitation />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
                 <Guests />

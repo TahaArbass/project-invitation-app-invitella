@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextField, MenuItem, Select, InputLabel, FormControl, Box, Typography } from '@mui/material';
-import baseURL from '../apiConfig';
-import Notification from './Notification';
+import Notification from '../Notification';
+import api from '../../utils/api';
 
 const ProjectForm = ({ owner_id, project = null, onCancel }) => {
     const [title, setTitle] = useState('');
@@ -30,31 +30,14 @@ const ProjectForm = ({ owner_id, project = null, onCancel }) => {
         try {
             let response;
             if (project) {
-                response = await fetch(`${baseURL}/api/projects/${project.id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(projectData),
-                });
+                response = await api.put(`/api/projects/${project.id}`, projectData);
             } else {
-                response = await fetch(`${baseURL}/api/projects`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(projectData),
-                });
+                response = await api.post('/api/projects', projectData);
             }
-
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            } else {
-                setNotification({ open: true, message: 'Project saved successfully.' });
-            }
+            setNotification({ open: true, message: 'Project saved successfully.' });
 
         } catch (error) {
-            setNotification({ open: true, message: 'Failed to save project.' });
+            setNotification({ open: true, message: 'Failed to save project. ' + error?.response?.data?.message });
         } finally {
             // wait for 2 seconds before closing the form
             setTimeout(() => {

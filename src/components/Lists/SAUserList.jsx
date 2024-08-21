@@ -3,12 +3,11 @@ import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
     Paper, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
-import axios from 'axios';
 import { Delete, Edit, Add } from '@mui/icons-material';
 import SAUserForm from '../Forms/SAUserForm';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
-import baseURL from '../../apiConfig';
+import api from '../../utils/api';
 
 const roleColors = {
     admin: '#8E9DFF',
@@ -36,8 +35,7 @@ const SAUserList = () => {
         const fetchUsers = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${baseURL}/api/users`);
-                console.log(response.data);
+                const response = await api.get(`/api/users`);
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
@@ -51,19 +49,20 @@ const SAUserList = () => {
 
     const handleAddOrEditUser = async (user) => {
         let response;
+        console.log(user);
         try {
             if (editingUser) {
-                response = await axios.put(`${baseURL}/api/users/${editingUser.id}`, user);
+                response = await api.put(`/api/users/${editingUser.id}`, user);
                 setUsers(users.map(u => (u.id === editingUser.id ? { ...u, ...user } : u)));
             } else {
-                response = await axios.post(`${baseURL}/api/users`, user);
+                response = await api.post(`/api/users`, user);
                 setUsers([...users, response.data]);
             }
+            setNotification({ open: true, message: 'User saved successfully' });
         } catch (error) {
             console.error('Error saving user:', error);
             setNotification({ open: true, message: 'Failed to save user' });
         } finally {
-            setNotification({ open: true, message: 'User saved successfully' });
             setIsFormVisible(false);
             setEditingUser(null);
         }
@@ -81,7 +80,7 @@ const SAUserList = () => {
 
     const confirmDeleteUser = async (userId) => {
         try {
-            await axios.delete(`${baseURL}/api/users/${userId}`);
+            await api.delete(`/api/users/${userId}`);
             setUsers(users.filter(user => user.id !== userId));
             setNotification({ open: true, message: 'User deleted successfully' });
             setIsConfirmOpen(false);
@@ -139,6 +138,8 @@ const SAUserList = () => {
                             <TableCell><Typography>Username</Typography></TableCell>
                             <TableCell><Typography>First Name</Typography></TableCell>
                             <TableCell><Typography>Last Name</Typography></TableCell>
+                            <TableCell><Typography>Telephone</Typography></TableCell>
+                            <TableCell><Typography>Email</Typography></TableCell>
                             <TableCell><Typography>Role</Typography></TableCell>
                             <TableCell><Typography>Status</Typography></TableCell>
                             <TableCell><Typography>Actions</Typography></TableCell>
@@ -160,6 +161,8 @@ const SAUserList = () => {
                                     <TableCell>{user.username}</TableCell>
                                     <TableCell>{user.first_name}</TableCell>
                                     <TableCell>{user.last_name}</TableCell>
+                                    <TableCell>{user.telephone}</TableCell>
+                                    <TableCell>{user.email}</TableCell>
                                     <TableCell>
                                         <Box sx={{ backgroundColor: roleColors[user.role], p: 1, borderRadius: 1 }}>
                                             {user.role}

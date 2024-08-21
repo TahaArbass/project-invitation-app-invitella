@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Typography, IconButton, InputAdornment, Link, FormHelperText } from '@mui/material';
+import { Typography, IconButton, InputAdornment, Link, FormHelperText, keyframes } from '@mui/material';
 import { Visibility, VisibilityOff, LockOpen } from '@mui/icons-material';
 import { Container, Form, StyledTextField, StyledSignButton } from '../styles';
 import { Link as RouterLink } from 'react-router-dom';
@@ -8,6 +8,24 @@ import baseURL from '../apiConfig';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Notification from '../components/Notification';
+
+// Define keyframe animations
+const slideInFromTop = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const delayAnimation = (animation, delay) => ({
+    animation: `${animation} 1s ease-out forwards`,
+    animationDelay: `${delay}s`,
+    opacity: 0,
+});
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -71,7 +89,7 @@ const Login = () => {
     }
 
     return (
-        <Container>
+        <Container sx={{ ...delayAnimation(slideInFromTop, 0.15) }}>
             <LockOpen color='primary' sx={{ fontSize: 50, mb: 2 }} />
             <Form noValidate onSubmit={onSubmit}>
                 <Typography variant="h5" align='center' component="h1" gutterBottom>

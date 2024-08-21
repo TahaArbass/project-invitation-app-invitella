@@ -1,8 +1,9 @@
 // src/pages/ForgotPassword.js
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Box, FormHelperText } from '@mui/material';
+import { TextField, Button, Typography, FormHelperText } from '@mui/material';
 import axios from 'axios';
 import baseURL from '../apiConfig';
+import { Container, Form } from '../styles';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -26,16 +27,9 @@ const ForgotPassword = () => {
     };
 
     return (
-        <Container component="main" maxWidth="xs">
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    mt: 8,
-                }}
-            >
-                <Typography component="h1" variant="h5">
+        <Container>
+            <Form>
+                <Typography align='center' component="h1" variant="h5">
                     Forgot Password
                 </Typography>
                 <form noValidate onSubmit={handlePasswordReset} style={{ width: '100%', marginTop: '1rem' }}>
@@ -65,8 +59,8 @@ const ForgotPassword = () => {
                         Send Password Reset Link
                     </Button>
                 </form>
-            </Box>
-        </Container>
+            </Form>
+        </Container >
     );
 };
 

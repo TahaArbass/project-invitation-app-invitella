@@ -34,7 +34,6 @@ const AdminPage = () => {
             await signOut(auth); // Sign out the user
             setIsLoggedIn(false); // Set the isLoggedIn state to false
             setCurrentUser(null); // Set the current user to null
-            console.log('User signed out successfully');
             navigate('/login'); // Redirect to the login page after signing out
         } catch (error) {
             console.error('Error signing out:', error);

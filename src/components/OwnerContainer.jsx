@@ -2,10 +2,10 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Box, Typography, Button, Grid, Card, CardContent, CircularProgress, Dialog, DialogContent } from '@mui/material';
 import OwnerProjects from '../components/OwnerProjects';
 import Notification from '../components/Notification';
-import ProjectForm from '../components/ProjectForm';
-import baseURL from '../apiConfig';
+import ProjectForm from './Forms/ProjectForm';
 import { Add, ArrowBack } from '@mui/icons-material';
 import { BackButton } from '../styles';
+import api from '../utils/api';
 
 const ProjectContext = createContext();
 
@@ -23,10 +23,9 @@ const OwnerContainer = ({ owner }) => {
     useEffect(() => {
         // Fetch activated projects here
         setLoading(true);
-        fetch(`${baseURL}/api/projects/activated/owner/${owner.id}`)
-            .then((response) => response.json())
-            .then((data) => {
-                setProjects(data);
+        api.get(`/api/projects/activated/owner/${owner.id}`)
+            .then((response) => {
+                setProjects(response.data);
                 setLoading(false);
             })
             .catch((error) => {

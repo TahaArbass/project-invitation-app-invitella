@@ -21,7 +21,15 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
 
     useEffect(() => {
         if (isEditing && user) {
-            setFormData(user);
+            setFormData({
+                username: user.username,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                telephone: user.telephone,
+                email: user.email,
+                role: user.role,
+                isActivated: user.isActivated,
+            });
         }
     }, [isEditing, user]);
 
@@ -59,14 +67,6 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                 required
             />
             <TextField
-                label="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                type="password"
-            />
-            <TextField
                 label="Telephone"
                 name="telephone"
                 value={formData.telephone}
@@ -74,11 +74,10 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                 required
             />
             <TextField
-                label="Email"
+                label="Email (Read Only)"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
-                required
+                aria-readonly={true}
                 type="email"
             />
             <TextField

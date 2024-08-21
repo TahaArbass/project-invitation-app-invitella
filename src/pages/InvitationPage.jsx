@@ -7,9 +7,8 @@ import { Background, Container } from '../styles';
 import EastIcon from '@mui/icons-material/East';
 import WestIcon from '@mui/icons-material/West';
 import RenderJSON from '../components/RenderJSON';
-import axios from 'axios';
-import baseURL from '../apiConfig';
 import { useParams } from 'react-router-dom';
+import api from '../utils/api';
 
 const InvitationPage = () => {
     const { projectName } = useParams();
@@ -24,14 +23,14 @@ const InvitationPage = () => {
         // Fetch project and pages data, also ge the user data
         const fetchPages = async () => {
             try {
-                const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
+                const projectResponse = await api.get(`/api/projects/title/${projectName}`);
                 if (projectResponse.data && projectResponse.data.id) {
                     // get the user data
-                    const userResponse = await axios.get(`${baseURL}/api/users/${projectResponse.data.owner_id}`);
+                    const userResponse = await api.get(`/api/users/${projectResponse.data.owner_id}`);
                     setUser(userResponse.data);
 
                     // get the pages data
-                    const pagesResponse = await axios.get(`${baseURL}/api/pages/project/${projectResponse.data.id}`);
+                    const pagesResponse = await api.get(`/api/pages/project/${projectResponse.data.id}`);
                     if (pagesResponse.data && pagesResponse.data.length > 0) {
                         const firstPage = pagesResponse.data[0];
                         setBgUrl(firstPage.page_data[0]?.background?.url || '');

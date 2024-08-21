@@ -4,12 +4,11 @@ import {
     Paper, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
-import axios from 'axios';
-import baseURL from '../../apiConfig';
 import OwnerForm from '../Forms/OwnerForm';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../utils/api';
 
 const OwnerList = ({ onViewProjects }) => {
     const [owners, setOwners] = useState([]);
@@ -27,9 +26,9 @@ const OwnerList = ({ onViewProjects }) => {
         const fetchOwners = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${baseURL}/api/admins/admin/${currentUser.dbUser.id}`);
+                const response = await api.get(`/api/admins/admin/${currentUser.dbUser.id}`);
                 const ownerIds = response.data.map((link) => link.owner_id);
-                const ownersRes = await Promise.all(ownerIds.map((id) => axios.get(`${baseURL}/api/users/${id}`)));
+                const ownersRes = await Promise.all(ownerIds.map((id) => api.get(`/api/users/${id}`)));
                 setOwners(ownersRes.map((res) => res.data));
             } catch (error) {
                 console.error('Error fetching owners:', error);
@@ -59,12 +58,12 @@ const OwnerList = ({ onViewProjects }) => {
     const handleAddOrEdit = async (owner) => {
         try {
             if (editingOwner) {
-                await axios.put(`${baseURL}/api/users/${editingOwner.id}`, owner);
+                await api.put(`/api/users/${editingOwner.id}`, owner);
                 setOwners(owners.map((o) => (o.id === editingOwner.id ? { ...o, ...owner } : o)));
                 setNotification({ open: true, message: 'Owner edited successfully' });
             } else {
-                const response = await axios.post(`${baseURL}/api/users/signup`, owner); // Use signup endpoint
-                await axios.post(`${baseURL}/api/admins`, { owner_id: response.data.dbUser.id, admin_id: currentUser.dbUser.id }); // Add owner to admin
+                const response = await api.post(`/api/users/signup`, owner); // Use signup endpoint
+                await api.post(`/api/admins`, { owner_id: response.data.dbUser.id, admin_id: currentUser.dbUser.id }); // Add owner to admin
                 setOwners([...owners, response.data.dbUser]);
                 setNotification({ open: true, message: `Owner added successfully: ${response.data.dbUser.username}` });
             }
@@ -89,7 +88,7 @@ const OwnerList = ({ onViewProjects }) => {
 
     const confirmDeleteOwner = async () => {
         try {
-            await axios.delete(`${baseURL}/api/users/${deleteOwnerId}`);
+            await api.delete(`/api/users/${deleteOwnerId}`);
             setOwners(owners.filter(owner => owner.id !== deleteOwnerId));
             setNotification({ open: true, message: 'Owner deleted successfully' });
         } catch (error) {

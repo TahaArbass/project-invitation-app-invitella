@@ -3,13 +3,12 @@ import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
     Paper, Button, Dialog, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
-import axios from 'axios';
-import baseURL from '../../apiConfig';
 import TableForm from '../Forms/TableForm';
 import { useProject } from '../OwnerContainer';
 import { Delete, Edit, Add } from '@mui/icons-material';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
+import api from '../../utils/api';
 
 const TableList = () => {
     const [tables, setTables] = useState([]);
@@ -30,7 +29,7 @@ const TableList = () => {
             setLoading(true);
             try {
                 // Fetch all tables for the selected project
-                const response = await axios.get(`${baseURL}/api/tables/project/${selectedProject.id}`);
+                const response = await api.get(`/api/tables/project/${selectedProject.id}`);
                 setTables(response.data);
             } catch (error) {
                 console.error('Error fetching table list:', error);
@@ -48,11 +47,11 @@ const TableList = () => {
         table.project_id = selectedProject.id;
         try {
             if (editingTable) {
-                response = await axios.put(`${baseURL}/api/tables/${editingTable.id}`, table);
+                response = await api.put(`/api/tables/${editingTable.id}`, table);
                 setTables(tables.map(t => (t.id === editingTable.id ? { ...t, ...table } : t)));
             } else {
                 table.project_id = selectedProject.id;
-                response = await axios.post(`${baseURL}/api/tables`, table);
+                response = await api.post(`/api/tables`, table);
                 setTables([...tables, response.data]);
             }
         } catch (error) {
@@ -77,7 +76,7 @@ const TableList = () => {
 
     const confirmDeleteTable = async (tableId) => {
         try {
-            await axios.delete(`${baseURL}/api/tables/${tableId}`);
+            await api.delete(`/api/tables/${tableId}`);
             setTables(tables.filter(table => table.id !== tableId));
             setNotification({ open: true, message: 'Table deleted successfully' });
             setIsConfirmOpen(false);

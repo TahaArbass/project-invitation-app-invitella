@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Button, Dialog, DialogContent, TextField, Box, Card, CardContent, CardActions } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ProjectForm from './ProjectForm';
-import baseURL from '../apiConfig';
-import axios from 'axios';
+import ProjectForm from './Forms/ProjectForm';
 import { useProject } from './OwnerContainer';
 import Notification from './Notification';
 import ConfirmAction from './utils/ConfirmAction';
+import api from '../utils/api';
 
 const ProjectDetailsTab = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +27,7 @@ const ProjectDetailsTab = () => {
     };
 
     const confirmDeleteProject = () => {
-        axios.put(`${baseURL}/api/projects/deactivate/${selectedProject.id}`)
+        api.put(`/api/projects/deactivate/${selectedProject.id}`)
             .then((response) => {
                 setNotification({ open: true, message: 'Project deleted successfully' });
                 setSelectedProject(null);
@@ -46,7 +45,7 @@ const ProjectDetailsTab = () => {
 
         if (!selectedProject?.id) return;
 
-        axios.get(`${baseURL}/api/projects/${selectedProject.id}`)
+        api.get(`/api/projects/${selectedProject.id}`)
             .then((response) => {
                 setSelectedProject(response.data);
             })

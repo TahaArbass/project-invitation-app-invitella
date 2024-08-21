@@ -3,14 +3,14 @@ import {
     Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination,
     Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Typography, CircularProgress
 } from '@mui/material';
-import axios from 'axios';
-import baseURL from '../../apiConfig';
 import GuestForm from '../Forms/GuestForm';
 import { useProject } from '../OwnerContainer';
 import { Delete, Edit, Add, ChairAlt } from '@mui/icons-material';
 import Notification from '../Notification';
 import ConfirmAction from '../utils/ConfirmAction';
 import TableSelector from '../../pages/DemoPage';
+import api from '../../utils/api';
+
 const GuestList = () => {
     const [guests, setGuests] = useState([]);
     const [tables, setTables] = useState([]);
@@ -36,14 +36,14 @@ const GuestList = () => {
             setLoading(true);
             try {
                 // Fetch all guests for the selected project
-                const response = await axios.get(`${baseURL}/api/guests/project/${selectedProject.id}`);
+                const response = await api.get(`/api/guests/project/${selectedProject.id}`);
                 setGuests(response.data);
                 // Fetch all tables owned by the current user
-                const tablesResponse = await axios.get(`${baseURL}/api/tables/project/${selectedProject.id}`);
+                const tablesResponse = await api.get(`/api/tables/project/${selectedProject.id}`);
                 setTables(tablesResponse.data);
 
                 // fetch tableGuests
-                const guestTablesResponse = await axios.get(`${baseURL}/api/guestTables/project/${selectedProject.id}`);
+                const guestTablesResponse = await api.get(`/api/guestTables/project/${selectedProject.id}`);
                 setGuestTables(guestTablesResponse.data);
             } catch (error) {
                 console.error('Error fetching guest list:', error);
@@ -59,11 +59,11 @@ const GuestList = () => {
         let response;
         try {
             if (editingGuest) {
-                response = await axios.put(`${baseURL}/api/guests/${editingGuest.id}`, guest);
+                response = await api.put(`/api/guests/${editingGuest.id}`, guest);
                 setGuests(guests.map(g => (g.id === editingGuest.id ? { ...g, ...guest } : g)));
             } else {
                 guest.project_id = selectedProject.id;
-                response = await axios.post(`${baseURL}/api/guests`, guest);
+                response = await api.post(`/api/guests`, guest);
                 setGuests([...guests, response.data]);
             }
         } catch (error) {
@@ -88,7 +88,7 @@ const GuestList = () => {
 
     const confirmDeleteGuest = async (guestId) => {
         try {
-            await axios.delete(`${baseURL}/api/guests/${guestId}`);
+            await api.delete(`/api/guests/${guestId}`);
             setGuests(guests.filter(guest => guest.id !== guestId));
             setNotification({ open: true, message: 'Guest deleted successfully' });
             setIsConfirmOpen(false);
@@ -135,10 +135,10 @@ const GuestList = () => {
         if (selectedGuest && selectedTable) {
             try {
                 // Check if the guest already has a table assignment
-                const existingAssignment = await axios.get(`${baseURL}/api/guestTables/${selectedProject.id}/${selectedGuest.id}`);
+                const existingAssignment = await api.get(`/api/guestTables/${selectedProject.id}/${selectedGuest.id}`);
                 if (existingAssignment.data) {
                     // Update existing assignment
-                    await axios.put(`${baseURL}/api/guestTables/${existingAssignment.data.id}`, {
+                    await api.put(`/api/guestTables/${existingAssignment.data.id}`, {
                         table_id: selectedTable.id,
                         guest_id: selectedGuest.id,
                         project_id: selectedProject.id
@@ -148,7 +148,7 @@ const GuestList = () => {
                     setGuestTables(guestTables.map(gt => (gt.id === existingAssignment.data.id ? { ...gt, table_id: selectedTable.id } : gt)));
                 } else {
                     // Create new assignment
-                    let response = await axios.post(`${baseURL}/api/guestTables`, {
+                    let response = await api.post(`/api/guestTables`, {
                         project_id: selectedProject.id,
                         guest_id: selectedGuest.id,
                         table_id: selectedTable.id

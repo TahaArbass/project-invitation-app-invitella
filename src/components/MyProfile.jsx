@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import ConfirmAction from './utils/ConfirmAction';
 import Notification from './Notification';
-import axios from 'axios';
-import baseURL from '../apiConfig';
+import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import OwnerForm from './Forms/OwnerForm';
 
@@ -33,7 +32,7 @@ const MyProfile = ({ open, onClose }) => {
     const confirmDeleteAccount = async () => {
         try {
             // Call backend to handle account deletion
-            await axios.delete(`${baseURL}/api/users/${currentUser.dbUser.id}`);
+            await api.delete(`/api/users/${currentUser.dbUser.id}`);
             setIsLoggedIn(false);
             setCurrentUser(null);
             // Notify and log out the user
@@ -58,7 +57,7 @@ const MyProfile = ({ open, onClose }) => {
 
     const editAccount = async (data) => {
         try {
-            await axios.put(`${baseURL}/api/users/${currentUser.dbUser.id}`, data);
+            await api.put(`/api/users/${currentUser.dbUser.id}`, data);
             setUserData(data);
             // set the current user to the updated user, only the changed data is updated
             setCurrentUser({ ...currentUser, dbUser: { ...currentUser.dbUser, ...data } });

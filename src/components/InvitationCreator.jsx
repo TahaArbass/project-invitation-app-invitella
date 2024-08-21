@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { Button, Typography, Box, Card, CardContent, Grid, Input, Snackbar, Alert, LinearProgress, IconButton, Dialog } from '@mui/material';
 import { TextFields, Link, InsertEmoticon, AddPhotoAlternate, Delete, Edit, Close } from '@mui/icons-material';
-import TextInputForm from './TextInputForm';
-import LinkButtonInputForm from './LinkButtonInputForm';
-import IconInputForm from './IconInputForm';
+import TextInputForm from './Forms/TextInputForm';
+import LinkButtonInputForm from './Forms/LinkButtonInputForm';
+import IconInputForm from './Forms/IconInputForm';
 import RenderJSON from './RenderJSON';
 import { signInAnon, storage } from '../firebase/firebaseConfig'; // Import Firebase storage
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'; // Firebase Storage imports
-import baseURL from '../apiConfig';
 import { useProject } from './OwnerContainer';
+import api from '../utils/api';
 
-const InvitationCreator = () => {
-    const [elements, setElements] = useState([]);
+const InvitationCreator = (page = null) => {
+    const [elements, setElements] = useState(page?.page_data || []); // State for storing page elements
     const [formType, setFormType] = useState(null);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -130,13 +130,7 @@ const InvitationCreator = () => {
 
     // Submit page data to the server
     const submitPage = async (data) => {
-        const response = await fetch(`${baseURL}/api/pages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data)
-        });
+        const response = await api.post('/api/pages', data);
 
         if (!response.ok) {
             throw new Error('Network response was not ok');

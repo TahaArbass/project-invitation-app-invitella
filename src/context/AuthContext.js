@@ -22,10 +22,14 @@ export const AuthProvider = ({ children }) => {
                 setIsLoggedIn(true);
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 localStorage.setItem('isLoggedIn', true);
+                localStorage.setItem('token', currentUser.user.token);
+                localStorage.setItem('refresh_token', currentUser.user.refresh_token);
             } else {
                 setIsLoggedIn(false);
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('token');
+                localStorage.removeItem('refresh_token');
             }
             setLoading(false);
         };

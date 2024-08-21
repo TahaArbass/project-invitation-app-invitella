@@ -1,12 +1,11 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import baseURL from '../apiConfig';
 import { useProject } from './OwnerContainer';
 import Notification from './Notification';
 import { Card, Grid, Typography, CircularProgress, Box, Checkbox, Button, CardActionArea, LinearProgress } from '@mui/material';
 import { saveAs } from 'file-saver';
 import ImageWithBlurhash from './ImageBlurHashComponent';
 import ConfirmAction from './utils/ConfirmAction';
+import api from '../utils/api';
 
 const UploadedMedia = () => {
     const { selectedProject } = useProject();
@@ -22,7 +21,7 @@ const UploadedMedia = () => {
 
         setLoading(true);
 
-        axios.get(`${baseURL}/api/photos/project/${selectedProject.id}`)
+        api.get(`/api/photos/project/${selectedProject.id}`)
             .then((response) => {
                 setPhotos(response.data);
                 setLoading(false);
@@ -44,8 +43,8 @@ const UploadedMedia = () => {
     const handleDownload = () => {
         setDownloading(true);
         const downloadPromises = selectedPhotos.map((photo) => {
-            const downloadUrl = `${baseURL}/api/photos/download/${encodeURIComponent(photo.url)}`;
-            return axios.get(downloadUrl, { responseType: 'blob' })
+            const downloadUrl = `/api/photos/download/${encodeURIComponent(photo.url)}`;
+            return api.get(downloadUrl, { responseType: 'blob' })
                 .then(response => {
                     const fileName = photo.url.split('?')[0].split('/').pop();
                     saveAs(response.data, fileName);
@@ -66,7 +65,7 @@ const UploadedMedia = () => {
 
     const confirmDelete = () => {
         const deletePromises = selectedPhotos.map((photo) => {
-            return axios.delete(`${baseURL}/api/photos/${photo.id}`)
+            return api.delete(`/api/photos/${photo.id}`)
                 .then(() => {
                     setPhotos((prevPhotos) => prevPhotos.filter((p) => p.id !== photo.id));
                     setIsConfirmOpen(false);

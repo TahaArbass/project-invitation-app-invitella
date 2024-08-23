@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography, Button, Box, Link, keyframes } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { Phone, Email } from '@mui/icons-material';
-import bgImage from '../assets/bg.jpeg';
+import bgImage from '../assets/bg2.jpg';
 import { Background, Container } from '../styles';
 
 // Define keyframe animations
@@ -37,7 +37,7 @@ const delayAnimation = (animation, delay) => ({
 const Root = () => {
     return (
         <Background image_url={bgImage}>
-            <Container>
+            <Container sx={{ overflow: 'auto', maxHeight: '100vh' }}>
                 {/* Welcome Section */}
                 <Box
                     sx={{
@@ -58,7 +58,7 @@ const Root = () => {
                         gutterBottom
                         sx={{ color: '#fff', fontWeight: 'bold', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.6)' }}
                     >
-                        Welcome to Project Invitation
+                        Welcome to Invitella
                     </Typography>
                     <Typography
                         variant="h5"
@@ -102,10 +102,10 @@ const Root = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         alignItems: 'center',
-                        mt: 4, // Slightly reduced space between the sections
+                        mt: { xs: 3, sm: 4 }, // Adjust top margin for different screen sizes
                         textAlign: 'center',
                         backgroundColor: 'rgba(0, 0, 0, 0.6)', // Dark overlay
-                        padding: '40px',
+                        padding: { xs: '20px', sm: '30px', md: '40px' }, // Responsive padding
                         borderRadius: '8px',
                         ...delayAnimation(slideInFromBottom, 1), // Animation delay for Contact Us box
                     }}
@@ -138,6 +138,7 @@ const Root = () => {
                         </Link>
                     </Box>
                 </Box>
+
             </Container>
         </Background>
     );

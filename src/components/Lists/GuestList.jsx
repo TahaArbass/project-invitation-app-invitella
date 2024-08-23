@@ -196,7 +196,7 @@ const GuestList = () => {
             </Dialog>
             <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>
-                    <TableHead sx={{ backgroundColor: 'bisque' }}>
+                    <TableHead sx={{ backgroundColor: '#B2DFDB' }}>
                         <TableRow>
                             <TableCell sx={{ width: '18%' }}><Typography noWrap>First Name</Typography></TableCell>
                             <TableCell sx={{ width: '18%' }}><Typography noWrap>Last Name</Typography></TableCell>
@@ -226,7 +226,7 @@ const GuestList = () => {
 
                                 // Render the guest row
                                 return (
-                                    <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
+                                    <TableRow key={index} sx={{ '&:hover': { backgroundColor: '#E6F7F7' } }}>
                                         <TableCell>{guest.first_name}</TableCell>
                                         <TableCell>{guest.last_name}</TableCell>
                                         <TableCell>{guest.telephone}</TableCell>

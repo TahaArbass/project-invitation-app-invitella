@@ -132,7 +132,7 @@ const SAUserList = () => {
             </Dialog>
             <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>
-                    <TableHead sx={{ backgroundColor: 'bisque' }}>
+                    <TableHead sx={{ backgroundColor: '#B2DFDB' }}>
                         <TableRow>
                             <TableCell><Typography>ID</Typography></TableCell>
                             <TableCell><Typography>Username</Typography></TableCell>
@@ -156,7 +156,7 @@ const SAUserList = () => {
                             </TableRow>
                         ) : (
                             users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((user, index) => (
-                                <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
+                                <TableRow key={index} sx={{ '&:hover': { backgroundColor: '#E6F7F7' } }}>
                                     <TableCell>{user.id}</TableCell>
                                     <TableCell>{user.username}</TableCell>
                                     <TableCell>{user.first_name}</TableCell>

@@ -128,7 +128,7 @@ const TableList = () => {
             </Dialog>
             <TableContainer component={Paper} sx={{ boxShadow: 4, borderRadius: 3 }}>
                 <Table>
-                    <TableHead sx={{ backgroundColor: 'bisque' }}>
+                    <TableHead sx={{ backgroundColor: '#B2DFDB' }}>
                         <TableRow>
                             <TableCell sx={{ width: '30%' }}>
                                 <Typography noWrap>Table Label</Typography>
@@ -152,7 +152,7 @@ const TableList = () => {
                             </TableRow>
                         ) : (
                             tables.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((table, index) => (
-                                <TableRow key={index} sx={{ '&:hover': { backgroundColor: 'beige' } }}>
+                                <TableRow key={index} sx={{ '&:hover': { backgroundColor: '#E6F7F7' } }}>
                                     <TableCell>{table.label}</TableCell>
                                     <TableCell>{table.description}</TableCell>
                                     <TableCell>

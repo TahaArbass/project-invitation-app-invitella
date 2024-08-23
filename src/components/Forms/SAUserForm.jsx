@@ -52,20 +52,22 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                 onChange={handleChange}
                 required
             />
-            <TextField
-                label="First Name"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-                required
-            />
-            <TextField
-                label="Last Name"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-                required
-            />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                    label="First Name"
+                    name="first_name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                    required
+                />
+                <TextField
+                    label="Last Name"
+                    name="last_name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                    required
+                />
+            </Box>
             <TextField
                 label="Telephone"
                 name="telephone"
@@ -73,38 +75,46 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                 onChange={handleChange}
                 required
             />
-            <TextField
+            {isEditing ? (<TextField
                 label="Email (Read Only)"
                 name="email"
                 value={formData.email}
                 aria-readonly={true}
                 type="email"
-            />
-            <TextField
-                select
-                label="Role"
-                name="role"
-                value={formData.role}
+            />) : (<TextField
+                label="Email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                required
-            >
-                {roles.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                    </MenuItem>
-                ))}
-            </TextField>
-            <TextField
-                select
-                label="Status"
-                name="isActivated"
-                value={formData.isActivated}
-                onChange={handleChange}
-                required
-            >
-                <MenuItem value={true}>Active</MenuItem>
-                <MenuItem value={false}>Inactive</MenuItem>
-            </TextField>
+                type="email"
+            />)}
+            <Box sx={{ display: 'flex', gap: 2 }}>
+                <TextField
+                    select
+                    label="Role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    required
+                >
+                    {roles.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    label="Status"
+                    name="isActivated"
+                    value={formData.isActivated}
+                    onChange={handleChange}
+                    required
+                >
+                    <MenuItem value={true}>Active</MenuItem>
+                    <MenuItem value={false}>Inactive</MenuItem>
+                </TextField>
+            </Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                 <Button type="submit" variant="contained" color="primary">
                     {isEditing ? 'Save Changes' : 'Add User'}

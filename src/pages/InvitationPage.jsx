@@ -28,9 +28,10 @@ const InvitationPage = () => {
                     // get the user data
                     const userResponse = await api.get(`/api/users/${projectResponse.data.owner_id}`);
                     setUser(userResponse.data);
-
+                    console.log('User:', userResponse.data);
                     // get the pages data
                     const pagesResponse = await api.get(`/api/pages/project/${projectResponse.data.id}`);
+                    console.log('Pages:', pagesResponse.data);
                     if (pagesResponse.data && pagesResponse.data.length > 0) {
                         const firstPage = pagesResponse.data[0];
                         setBgUrl(firstPage.page_data[0]?.background?.url || '');
@@ -66,7 +67,7 @@ const InvitationPage = () => {
     }, [currentSlide, elements]);
 
     // if user is not activated, we don't show the invitation
-    if (user && !user.activated) {
+    if (user && !user.isActivated) {
         return (
             <Container>
                 <Card sx={{ padding: '20px', margin: '20px', borderRadius: '20px' }}>

@@ -5,7 +5,7 @@ import {
     Typography,
     Box,
     TextField,
-    CircularProgress
+    CircularProgress, Card, CardContent
 } from '@mui/material';
 import { Background, Container, StyledAutocomplete, GuestSearchTypography } from '../styles';
 import baseURL from '../apiConfig';
@@ -20,12 +20,21 @@ const GuestSearch = () => {
     const [selectedGuest, setSelectedGuest] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
         const fetchGuestsAndTables = async () => {
             try {
                 // Fetch project id using project name
                 const projectResponse = await axios.get(`${baseURL}/api/projects/title/${projectName}`);
+
+                // fetch the owner of the project
+                const userResponse = await axios.get(`${baseURL}/api/users/public/${projectResponse.data.owner_id}`, {
+                    headers: {
+                        public: 'true',
+                    },
+                });
+                setUser(userResponse.data);
 
                 // Fetch guest tables associated with the project
                 const guestTablesResponse = await axios.get(`${baseURL}/api/guestTables/project/${projectResponse.data.id}`);
@@ -62,8 +71,7 @@ const GuestSearch = () => {
         if (value) {
             // Find the table associated with the selected guest
             const table = guestTables.find(guestTable => guestTable.guest_id === value.id);
-
-            if (table) {
+            if (table.table_id) {
                 try {
                     // Fetch table details based on table_id from guestTables
                     const tableResponse = await axios.get(`${baseURL}/api/tables/${table.table_id}`);
@@ -85,6 +93,21 @@ const GuestSearch = () => {
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
                 <CircularProgress />
             </Box>
+        );
+    }
+
+    // if user is not activated, we don't show the invitation
+    if (user && !user.isActivated) {
+        return (
+            <Container>
+                <Card sx={{ padding: '20px', margin: '20px', borderRadius: '20px' }}>
+                    <CardContent>
+                        <Typography variant="h6">
+                            Invitation is not available. User Account is not activated.
+                        </Typography>
+                    </CardContent>
+                </Card>
+            </Container>
         );
     }
 
@@ -147,12 +170,18 @@ const GuestSearch = () => {
                         </Box>
                     )}
 
-                    {selectedTable && (
+                    {selectedTable ? (
                         <Box sx={{ marginTop: 2, textAlign: 'center' }}>
                             <GuestSearchTypography variant="h3">Table: {selectedTable.label}</GuestSearchTypography>
                             <GuestSearchTypography variant="h4">Where: {selectedTable.description}</GuestSearchTypography>
                         </Box>
+                    ) : (
+                        <Box sx={{ marginTop: 2, textAlign: 'center' }}>
+                            <GuestSearchTypography variant="h4" color="textSecondary">No table Assigned to the Selected Guest</GuestSearchTypography>
+                        </Box>
                     )}
+
+
                 </Box>
             </Container>
         </Background>

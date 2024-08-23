@@ -7,8 +7,9 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import MyProfile from '../components/MyProfile';
 import ContactUs from '../components/utils/ContactUs';
-import { Dialog, DialogContent } from '@mui/material';
+import { Box, Dialog, DialogContent, Tab, Tabs } from '@mui/material';
 import ConfirmAction from '../components/utils/ConfirmAction';
+import { Event, People } from '@mui/icons-material';
 
 const SuperAdminPage = () => {
     const [notification, setNotification] = useState({ open: false, message: '' });
@@ -18,6 +19,7 @@ const SuperAdminPage = () => {
     const [showProfile, setShowProfile] = useState(false);
     const [showContactUs, setShowContactUs] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [tabIndex, setTabIndex] = useState(0);
 
     const handleProfileClick = () => {
         setShowProfile(true);
@@ -25,6 +27,10 @@ const SuperAdminPage = () => {
 
     const handleLogoutClick = () => {
         setShowConfirm(true);
+    };
+
+    const handleChange = (event, newValue) => {
+        setTabIndex(newValue);
     };
 
     const confirmLogOut = async () => {
@@ -60,7 +66,23 @@ const SuperAdminPage = () => {
                     <ContactUs />
                 </DialogContent>
             </Dialog>
-            <SAUserList />
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                <Tabs
+                    value={tabIndex}
+                    onChange={handleChange}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                >
+                    <Tab icon={<People />} label="Users" />
+                    <Tab icon={<Event />} label="Projects" />
+                </Tabs>
+            </Box>
+            <TabPanel value={tabIndex} index={0}>
+                <SAUserList />
+            </TabPanel>
+            <TabPanel value={tabIndex} index={1}>
+                {/* <SAEventList /> */}
+            </TabPanel>
             <ConfirmAction
                 open={showConfirm}
                 title="Log Out"
@@ -76,5 +98,19 @@ const SuperAdminPage = () => {
         </>
     );
 };
+
+function TabPanel(props) {
+    const { children, value, index } = props;
+
+    return (
+        <div hidden={value !== index}>
+            {value === index && (
+                <Box>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
+}
 
 export default SuperAdminPage;

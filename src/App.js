@@ -22,10 +22,15 @@ import SuperAdminPage from './pages/SuperAdminPage';
 const testingTheme = createTheme({
   palette: {
     mode: 'light',
+    // primary: {
+    //   main: '#d8b384  ', // Beige
+    //   light: '#f0e1c0', // Light Beige
+    //   dark: '#aa8c5e', // Dark Beige
+    // },
     primary: {
-      main: '#d8b384  ', // Beige
-      light: '#f0e1c0', // Light Beige
-      dark: '#aa8c5e', // Dark Beige
+      main: '#009688', // Teal
+      light: '#B2DFDB', // Light Teal
+      dark: '#00796B', // Dark Teal
     },
     secondary: {
       main: '#001f3f', // Navy Blue

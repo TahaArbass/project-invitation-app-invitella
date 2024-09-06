@@ -107,7 +107,7 @@ const SAUserList = () => {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+            <Box display="flex" justifyContent="center" alignItems="center" maxHeight="20vh">
                 <CircularProgress />
             </Box>
         );

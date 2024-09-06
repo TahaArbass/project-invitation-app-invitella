@@ -50,6 +50,7 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
+                fullWidth
                 required
             />
             <Box sx={{ display: 'flex', gap: 2 }}>
@@ -115,8 +116,8 @@ const SAUserForm = ({ onSubmit, user, isEditing, onCancel }) => {
                     <MenuItem value={false}>Inactive</MenuItem>
                 </TextField>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                <Button type="submit" variant="contained" color="primary">
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
                     {isEditing ? 'Save Changes' : 'Add User'}
                 </Button>
                 <Button variant="contained" color="secondary" onClick={onCancel}>

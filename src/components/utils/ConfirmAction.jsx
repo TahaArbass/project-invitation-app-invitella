@@ -8,7 +8,7 @@ const ConfirmAction = ({ open, onClose, onConfirm, title, content }) => {
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
-                <DialogContentText>{content}</DialogContentText>
+                <DialogContentText sx={{ fontWeight: 'bold' }}>{content}</DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button variant='outlined' onClick={onConfirm} color="error">

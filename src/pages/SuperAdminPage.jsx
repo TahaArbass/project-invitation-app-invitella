@@ -10,6 +10,7 @@ import ContactUs from '../components/utils/ContactUs';
 import { Box, Dialog, DialogContent, Tab, Tabs } from '@mui/material';
 import ConfirmAction from '../components/utils/ConfirmAction';
 import { Event, People } from '@mui/icons-material';
+import SAProjectList from '../components/Lists/SAProjectList';
 
 const SuperAdminPage = () => {
     const [notification, setNotification] = useState({ open: false, message: '' });
@@ -81,7 +82,7 @@ const SuperAdminPage = () => {
                 <SAUserList />
             </TabPanel>
             <TabPanel value={tabIndex} index={1}>
-                {/* <SAEventList /> */}
+                <SAProjectList />
             </TabPanel>
             <ConfirmAction
                 open={showConfirm}

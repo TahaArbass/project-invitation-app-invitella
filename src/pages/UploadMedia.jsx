@@ -206,7 +206,7 @@ const UploadMedia = () => {
                                         <Button
                                             variant="contained"
                                             component="span"
-                                            color="primary"
+                                            color="secondary"
                                             startIcon={<Folder />}
                                         >
                                             Choose Files

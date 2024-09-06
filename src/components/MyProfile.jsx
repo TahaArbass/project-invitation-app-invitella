@@ -136,13 +136,13 @@ const MyProfile = ({ open, onClose }) => {
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button variant="contained" color="warning" onClick={handleDeleteClick} sx={{ mr: 2 }}>
+                <Button variant="contained" color="primary" onClick={handleDeleteClick} sx={{ mr: 2 }}>
                     Delete Account
                 </Button>
-                <Button variant="contained" color="info" onClick={handleEditClick} sx={{ mr: 2 }}>
+                <Button variant="contained" color="secondary" onClick={handleEditClick} sx={{ mr: 2 }}>
                     Edit Profile
                 </Button>
-                <Button onClick={onClose} color="secondary">
+                <Button onClick={onClose} variant='contained' color='error'>
                     Close
                 </Button>
             </DialogActions>
